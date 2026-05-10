@@ -249,7 +249,8 @@ body{
     </div>
     <div class="topbar-right">
       <div class="supabase-indicator loading" id="dbStatus">⏳ Connecting…</div>
-      <button class="btn btn-dark" onclick="openAdmin()">⚙ Admin</button>
+      <button class="btn btn-dark" id="adminAccessBtn" onclick="openAdmin()">🔐 Admin Login</button>
+<button class="btn btn-red" id="logoutBtn" onclick="logoutAdmin()" style="display:none;">Logout</button>
     </div>
   </div>
 
@@ -571,8 +572,23 @@ body{
     </div>
     <div class="admin-body">
 
-      <!-- DASHBOARD -->
-      <div class="asection active" id="aDash">
+      
+      <!-- LOGIN -->
+      <div class="asection active" id="aLogin">
+        <div style="background:#fff;border-radius:14px;padding:22px;border:1px solid #e5e7eb;">
+          <strong style="font-size:16px;color:#1e3a5f;display:block;margin-bottom:16px;">🔐 Admin Login</strong>
+
+          <input class="form-input" id="adminEmail" placeholder="Admin Email" />
+          <input class="form-input" id="adminPassword" type="password" placeholder="Password" />
+
+          <button class="form-submit" onclick="loginAdmin()">Login</button>
+
+          <div id="loginMsg" style="margin-top:10px;font-size:12px;display:none;"></div>
+        </div>
+      </div>
+
+<!-- DASHBOARD -->
+      <div class="asection" id="aDash">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
           <div style="background:#0369a1;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">📋</div><div style="font-size:22px;font-weight:800;" id="dash-sop-count">—</div><div style="font-size:10px;opacity:.8;">SOPs Published</div></div>
           <div style="background:#059669;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">🔗</div><div style="font-size:14px;font-weight:700;" id="dash-db-status">Not connected</div><div style="font-size:10px;opacity:.8;">Supabase Status</div></div>
@@ -720,6 +736,8 @@ let SUPABASE_KEY = localStorage.getItem('sbKey') || '';
 let activeCat = 'All';
 let allSOPs = [];   // [{id,title,category,icon,content,file_url,file_name,content_type,created_at}]
 let currentFile = null;
+let currentUser = null;
+let isAdminLoggedIn = false;
 
 // ── Built-in seed SOPs (shown when no Supabase) ──────────────────────
 const SEED_SOPS = [
@@ -791,6 +809,7 @@ function saveSupabaseConfig() {
   }
 
   updateDBStatus();
+  checkExistingSession();
   loadSOPs();
 }
 
@@ -1086,6 +1105,99 @@ function toggleExpand(id) {
   const pi = document.getElementById('pi-'+id);
   el.classList.toggle('open');
   if(pi) pi.classList.toggle('open');
+}
+
+
+async function loginAdmin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value.trim();
+  const msg = document.getElementById('loginMsg');
+
+  if(!SUPABASE_URL || !SUPABASE_KEY){
+    msg.style.display='block';
+    msg.style.color='#dc2626';
+    msg.textContent='Configure Supabase first.';
+    return;
+  }
+
+  try{
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+      method:'POST',
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({email,password})
+    });
+
+    const data = await res.json();
+
+    if(data.access_token){
+      currentUser = data.user;
+      isAdminLoggedIn = true;
+
+      localStorage.setItem('sb_admin_session', JSON.stringify(data));
+
+      document.getElementById('adminAccessBtn').style.display='none';
+      document.getElementById('logoutBtn').style.display='inline-block';
+
+      msg.style.display='block';
+      msg.style.color='#15803d';
+      msg.textContent='✅ Login successful';
+
+      document.getElementById('aLogin').classList.remove('active');
+      document.getElementById('aDash').classList.add('active');
+
+      document.querySelectorAll('.atab').forEach(t=>t.style.display='inline-block');
+    } else {
+      msg.style.display='block';
+      msg.style.color='#dc2626';
+      msg.textContent='Invalid credentials';
+    }
+
+  } catch(e){
+    msg.style.display='block';
+    msg.style.color='#dc2626';
+    msg.textContent='Login failed';
+  }
+}
+
+function logoutAdmin(){
+  localStorage.removeItem('sb_admin_session');
+  currentUser = null;
+  isAdminLoggedIn = false;
+
+  document.getElementById('logoutBtn').style.display='none';
+  document.getElementById('adminAccessBtn').style.display='inline-block';
+
+  closeAdmin();
+}
+
+function checkExistingSession(){
+  const session = localStorage.getItem('sb_admin_session');
+
+  if(session){
+    isAdminLoggedIn = true;
+
+    document.getElementById('logoutBtn').style.display='inline-block';
+    document.getElementById('adminAccessBtn').style.display='none';
+  }
+}
+
+const originalOpenAdmin = openAdmin;
+
+openAdmin = function(){
+  document.getElementById('adminModal').classList.add('open');
+
+  if(isAdminLoggedIn){
+    document.getElementById('aLogin').classList.remove('active');
+    document.getElementById('aDash').classList.add('active');
+  } else {
+    document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
+    document.getElementById('aLogin').classList.add('active');
+
+    document.querySelectorAll('.atab').forEach(t=>t.style.display='none');
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────
