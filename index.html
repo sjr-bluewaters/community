@@ -789,8 +789,13 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);</d
 // ════════════════════════════════════════════
 // CONFIG & STATE
 // ════════════════════════════════════════════
-let SUPABASE_URL = localStorage.getItem('sbUrl') || 'https://vfwhdlmebcnikvwyruzt.supabase.co';
-let SUPABASE_KEY = localStorage.getItem('sbKey') || 'sb_publishable_y4Ng2pU9m-dkij35kN0dIQ_NU7KGERw';
+// Hardcoded credentials — always use these, ignore any stale localStorage values
+const HARDCODED_URL = 'https://vfwhdlmebcnikvwyruzt.supabase.co';
+const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmd2hkbG1lYmNuaWt2d3lydXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjU3NzgsImV4cCI6MjA5MzkwMTc3OH0.BX_JBSkXMjALgBd7mATILkvtjBnvxEyy8GnssqvF6zo';
+localStorage.setItem('sbUrl', HARDCODED_URL);
+localStorage.setItem('sbKey', HARDCODED_KEY);
+let SUPABASE_URL = HARDCODED_URL;
+let SUPABASE_KEY = HARDCODED_KEY;
 let activeCat = 'All';
 let allSOPs = [];   // [{id,title,category,icon,content,file_url,file_name,content_type,created_at}]
 let currentFile = null;
