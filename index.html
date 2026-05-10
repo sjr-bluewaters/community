@@ -47,19 +47,19 @@ body{
 .page.active{display:block;}
 
 /* ── HOME PAGE ──────────────────────────── */
-.home-hero{
-  background:linear-gradient(135deg,#0369a1 0%,#0891b2 60%,#06b6d4 100%);
-  color:#fff;border-radius:22px;padding:40px 44px;margin-bottom:24px;position:relative;overflow:hidden;
+.home-welcome-slim{
+  background:linear-gradient(120deg,#0369a1 0%,#0891b2 70%,#06b6d4 100%);
+  color:#fff;border-radius:16px;padding:18px 24px;margin-bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;overflow:hidden;
 }
-.home-hero::after{content:'🌊';position:absolute;right:-10px;bottom:-20px;font-size:140px;opacity:.08;line-height:1;}
-.home-hero .welcome{font-size:11px;font-weight:700;letter-spacing:.14em;color:#bae6fd;margin-bottom:8px;text-transform:uppercase;}
-.home-hero h1{font-size:48px;font-weight:800;margin-bottom:6px;line-height:1.1;}
-.home-hero .tagline{font-size:17px;color:#bae6fd;margin-bottom:6px;}
-.home-hero .desc{font-size:14px;color:#e0f2fe;line-height:1.7;max-width:680px;}
-.home-stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px;}
-.stat-chip{background:rgba(255,255,255,.15);border-radius:14px;padding:12px 20px;text-align:center;min-width:90px;}
-.stat-chip .sv{font-size:22px;font-weight:800;}
-.stat-chip .sl{font-size:10px;color:#bae6fd;margin-top:2px;}
+.welcome-label{font-size:10px;font-weight:700;letter-spacing:.14em;color:#bae6fd;text-transform:uppercase;margin-bottom:2px;}
+.welcome-title{font-size:24px;font-weight:800;line-height:1.15;margin-bottom:2px;}
+.welcome-sub{font-size:12px;color:#bae6fd;}
+.welcome-wave{font-size:48px;opacity:.22;line-height:1;flex-shrink:0;}
+.home-stats-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.stats-bar-chip{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:11px 16px;text-align:center;flex:1;min-width:70px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.stats-bar-chip .sv{font-size:20px;font-weight:800;color:#1e3a5f;}
+.stats-bar-chip .sl{font-size:10px;color:#6b7280;margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
 
 .home-grid{display:grid;grid-template-columns:1.3fr 0.7fr;gap:20px;}
 @media(max-width:900px){.home-grid{grid-template-columns:1fr;}}
@@ -229,9 +229,9 @@ body{
 @media(max-width:900px){
   body{background:#f0f9ff;}
   .portal{margin:0;border-radius:0;box-shadow:none;}
-  .home-hero{padding:28px 24px;}
-  .home-hero h1{font-size:34px;}
-  .home-hero .desc{font-size:13px;}
+  .home-welcome-slim{padding:14px 18px;}
+  .welcome-title{font-size:20px;}
+  .home-stats-bar{gap:8px;}
   .page{padding:16px;}
   .quick-tiles{grid-template-columns:repeat(4,1fr);}
   .mc-grid{grid-template-columns:1fr 1fr;}
@@ -271,18 +271,14 @@ body{
   ════════════════════════════════════════ -->
   <div class="page active" id="page-home">
 
-    <!-- Hero -->
-    <div class="home-hero">
-      <div class="welcome">Welcome to</div>
-      <h1>SJR Bluewaters</h1>
-      <div class="tagline">Community Portal · Parappana Agrahara, Bangalore</div>
-      <div class="desc">Your one-stop portal for SOPs, emergency contacts, committee updates, events, community helpers and society amenities. Everything your community needs, in one place.</div>
-      <div class="home-stats">
-        <div class="stat-chip"><div class="sv">12</div><div class="sl">Blocks</div></div>
-        <div class="stat-chip"><div class="sv" id="home-sop-count">—</div><div class="sl">SOPs</div></div>
-        <div class="stat-chip"><div class="sv">4</div><div class="sl">MC Members</div></div>
-        <div class="stat-chip"><div class="sv">4</div><div class="sl">Committees</div></div>
+    <!-- Slim welcome banner -->
+    <div class="home-welcome-slim">
+      <div class="home-welcome-text">
+        <div class="welcome-label">Welcome to</div>
+        <div class="welcome-title">SJR Bluewaters</div>
+        <div class="welcome-sub">Community Portal · Parappana Agrahara, Bangalore</div>
       </div>
+      <div class="welcome-wave">🌊</div>
     </div>
 
     <!-- Quick access tiles -->
@@ -310,6 +306,22 @@ body{
       </div>
       <div class="qtile" style="background:#fefce8;border-color:#fde68a;" onclick="openAdmin()">
         <div class="qi">⚙️</div><div class="ql" style="color:#92400e;">Admin</div>
+      </div>
+    </div>
+
+    <!-- Stats dashboard -->
+    <div class="home-stats-bar">
+      <div class="stats-bar-chip">
+        <div class="sv">12</div><div class="sl">Blocks</div>
+      </div>
+      <div class="stats-bar-chip">
+        <div class="sv" id="home-sop-count">—</div><div class="sl">SOPs</div>
+      </div>
+      <div class="stats-bar-chip">
+        <div class="sv">4</div><div class="sl">MC Members</div>
+      </div>
+      <div class="stats-bar-chip">
+        <div class="sv">4</div><div class="sl">Committees</div>
       </div>
     </div>
 
@@ -390,7 +402,7 @@ body{
     <div class="section-sub">Tap any SOP to read it on screen — no downloads needed</div>
 
     <!-- Supabase config banner (shown only when not configured) -->
-    <div class="config-banner" id="configBanner">
+    <div class="config-banner" id="configBanner" style="display:none;">
       <h3>🔗 Connect to Supabase to enable live SOP management</h3>
       <p>Once connected, admins can upload PDFs or write SOPs — they appear here instantly with no HTML edits needed. Create a free project at <code>supabase.com</code>, then enter your credentials below.</p>
       <div class="config-fields">
@@ -535,21 +547,36 @@ body{
     <!-- Feedback -->
     <div id="sopFeedbackSection" style="border-top:1px solid #e5e7eb;padding:18px 20px;background:#f9fafb;">
       <div id="sopFeedbackForm">
-        <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:10px;">💬 Was this SOP helpful?</div>
-        <div style="display:flex;gap:10px;margin-bottom:12px;">
-          <button id="fbThumbUp" onclick="setFeedbackThumb('up')"
-            style="flex:1;padding:8px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-size:18px;cursor:pointer;transition:all .2s;">👍</button>
-          <button id="fbThumbDown" onclick="setFeedbackThumb('down')"
-            style="flex:1;padding:8px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-size:18px;cursor:pointer;transition:all .2s;">👎</button>
+        <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:10px;">💬 Share your feedback on this SOP</div>
+
+        <textarea id="fbComment" placeholder="Your comment or suggestion…"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;resize:vertical;min-height:72px;font-family:inherit;margin-bottom:8px;"></textarea>
+        <div id="fbIdentityFields" style="display:none;">
+          <select id="fbBlock"
+            style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;margin-bottom:8px;background:#fff;">
+            <option value="">Select Block *</option>
+          <option value="Alston">Alston</option>
+          <option value="Boston">Boston</option>
+          <option value="Clarence">Clarence</option>
+          <option value="Crescent">Crescent</option>
+          <option value="Greenwich">Greenwich</option>
+          <option value="Goldcoast">Goldcoast</option>
+          <option value="Hamstead A">Hamstead A</option>
+          <option value="Hamstead B">Hamstead B</option>
+          <option value="Hamstead AB">Hamstead AB</option>
+          <option value="Kensington">Kensington</option>
+          <option value="Mayfair">Mayfair</option>
+          <option value="Primrose">Primrose</option>
+          </select>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input id="fbName" placeholder="Your Name *"
+              style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
+            <input id="fbFlat" placeholder="Flat No. *"
+              style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
+          </div>
         </div>
-        <textarea id="fbComment" placeholder="Optional: share a suggestion or concern…"
-          style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;resize:vertical;min-height:64px;font-family:inherit;"></textarea>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-          <input id="fbFlat" placeholder="Flat No. (optional)" 
-            style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
-          <button onclick="submitFeedback()"
-            style="padding:8px 18px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Submit</button>
-        </div>
+        <button onclick="submitFeedback()"
+          style="width:100%;padding:10px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Submit Feedback</button>
         <div id="fbMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
       </div>
       <div id="sopFeedbackDone" style="display:none;text-align:center;padding:10px 0;">
@@ -720,6 +747,8 @@ CREATE TABLE sop_feedback (
   thumb text CHECK (thumb IN ('up','down')),
   comment text,
   flat_no text,
+  block text,
+  member_name text,
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE sop_feedback ENABLE ROW LEVEL SECURITY;
@@ -767,20 +796,7 @@ let currentUser = null;
 let isAdminLoggedIn = false;
 
 // ── Built-in seed SOPs (shown when no Supabase) ──────────────────────
-const SEED_SOPS = [
-  {id:'s1',title:'Visitor Entry & Gate Pass',category:'Security',icon:'🛡️',content_type:'text',created_at:'2025-05-01',
-   content:`<h3>Purpose</h3><p>Ensure all visitors are properly verified before entering SJR Bluewaters.</p><h3>Procedure</h3><ul><li>All visitors must report to the main security gate.</li><li>Provide a valid government-issued ID (Aadhaar, PAN, Passport or Driving Licence).</li><li>Security will call the resident to confirm the visit before issuing a gate pass.</li><li>Gate pass must be displayed at all times.</li></ul><h3>Delivery Personnel</h3><ul><li>Not permitted beyond the lobby without resident escort.</li><li>Food delivery, couriers and home service workers wait at the visitor bay.</li></ul><div class="note">⚠️ Unauthorised entry will be escalated to society management and police if required.</div>`},
-  {id:'s2',title:'Visitor Parking Rules',category:'Parking',icon:'🚗',content_type:'text',created_at:'2025-05-04',
-   content:`<h3>Visitor Parking Zones</h3><p>Yellow-marked bays near Gate 1 and Gate 2. Resident bays are strictly for flat owners and tenants.</p><h3>Rules</h3><ul><li>Maximum 4 hours without prior notice.</li><li>Extended parking requires written approval from the Society Manager.</li><li>Visitor pass must be displayed on the dashboard.</li><li>No parking in fire lanes, near transformers, or blocking other vehicles.</li></ul><div class="note">📞 Parking disputes: Maintenance +91 98440 00003</div>`},
-  {id:'s3',title:'Swimming Pool Usage',category:'Amenities',icon:'🏊',content_type:'text',created_at:'2025-04-20',
-   content:`<h3>Pool Timings</h3><ul><li>Adults: 6:00 AM–9:00 AM and 4:00 PM–8:00 PM</li><li>Children (under 12): 4:00 PM–6:00 PM with adult</li><li>Closed Tuesdays for cleaning</li></ul><h3>Rules</h3><ul><li>Proper swimwear mandatory — no regular clothes or shorts.</li><li>Shower before entering.</li><li>Children under 6 must wear floaties and be supervised.</li><li>No food or glass near pool. No running or diving from edges.</li></ul><div class="note">🏊 Pool capacity: 20 persons at a time.</div>`},
-  {id:'s4',title:'Garbage Segregation & Disposal',category:'Housekeeping',icon:'♻️',content_type:'text',created_at:'2025-04-28',
-   content:`<h3>Segregation at Source</h3><ul><li>🟢 <strong>Green Bin:</strong> Wet/Organic — food waste, peels, cooked leftovers</li><li>🔵 <strong>Blue Bin:</strong> Dry/Recyclable — paper, cardboard, plastic, glass, metal</li><li>🔴 <strong>Red Bin:</strong> Hazardous — diapers, medical waste, broken glass, e-waste</li></ul><h3>Timings</h3><ul><li>Housekeeping collects 7:00 AM–9:00 AM daily. Keep bins outside door by 7 AM.</li></ul><div class="note">♻️ Unsegregated waste will not be collected. Please cooperate!</div>`},
-  {id:'s5',title:'Pet Policy & Guidelines',category:'General',icon:'🐾',content_type:'text',created_at:'2025-04-15',
-   content:`<h3>Registration</h3><p>All pets must be registered with the Management Office — submit a photo, vaccination certificate and owner details within 30 days.</p><h3>Rules</h3><ul><li>Pets on leash at all times in common areas.</li><li>Not permitted in pool, children's play area or gym.</li><li>Owners must clean up immediately after their pets.</li><li>Vaccinations must be kept up to date.</li></ul><div class="note">🐾 Unregistered pets or repeated violations will attract a formal notice.</div>`},
-  {id:'s6',title:'Move-In / Move-Out Process',category:'Admin',icon:'📦',content_type:'text',created_at:'2025-04-10',
-   content:`<h3>Move-In</h3><ul><li>Inform Management at least 72 hours in advance.</li><li>Permitted only 8:00 AM–6:00 PM on weekdays and Saturdays. Not on Sundays or public holidays.</li><li>Book service lift in advance. Pad lift before use.</li><li>Submit tenant KYC (Aadhaar + rental agreement) within 7 days.</li></ul><h3>Move-Out</h3><ul><li>Request NOC from Society Management 7 days before.</li><li>Clear all dues before NOC is issued.</li></ul><div class="note">📞 Contact Society Manager: +91 98440 00002</div>`},
-];
+const SEED_SOPS = [];
 
 // ════════════════════════════════════════════
 // NAVIGATION
@@ -1350,6 +1366,10 @@ async function checkExistingSession(){
     const cu = document.getElementById('cfgUrl'), ck = document.getElementById('cfgKey');
     if(du) du.value = SUPABASE_URL; if(dk) dk.value = SUPABASE_KEY;
     if(cu) cu.value = SUPABASE_URL; if(ck) ck.value = SUPABASE_KEY;
+  } else {
+    // Only show banner to admins (after login) — not to regular visitors
+    // Banner stays hidden; admin can configure via Admin Panel > Database tab
+    document.getElementById('configBanner').style.display = 'none';
   }
   updateDBStatus();
   checkExistingSession();
@@ -1365,16 +1385,18 @@ let currentFeedbackThumb = null;
 function initFeedback(sopId, sopTitle) {
   currentFeedbackSopId = sopId;
   currentFeedbackSopTitle = sopTitle;
-  currentFeedbackThumb = null;
-  document.getElementById('fbThumbUp').style.borderColor = '#e5e7eb';
-  document.getElementById('fbThumbUp').style.background = '#fff';
-  document.getElementById('fbThumbDown').style.borderColor = '#e5e7eb';
-  document.getElementById('fbThumbDown').style.background = '#fff';
+
   document.getElementById('fbComment').value = '';
   document.getElementById('fbFlat').value = '';
+  document.getElementById('fbName').value = '';
+  document.getElementById('fbBlock').value = '';
+  document.getElementById('fbIdentityFields').style.display = 'block';
   document.getElementById('fbMsg').style.display = 'none';
   document.getElementById('sopFeedbackForm').style.display = 'block';
   document.getElementById('sopFeedbackDone').style.display = 'none';
+
+  // Show identity fields immediately
+  document.getElementById('fbIdentityFields').style.display = 'block';
 
   // Check if already submitted for this SOP this session
   const done = sessionStorage.getItem('fb_done_' + sopId);
@@ -1384,35 +1406,34 @@ function initFeedback(sopId, sopTitle) {
   }
 }
 
-function setFeedbackThumb(val) {
-  currentFeedbackThumb = val;
-  const up = document.getElementById('fbThumbUp');
-  const dn = document.getElementById('fbThumbDown');
-  if(val === 'up') {
-    up.style.borderColor = '#15803d'; up.style.background = '#f0fdf4';
-    dn.style.borderColor = '#e5e7eb'; dn.style.background = '#fff';
-  } else {
-    dn.style.borderColor = '#dc2626'; dn.style.background = '#fef2f2';
-    up.style.borderColor = '#e5e7eb'; up.style.background = '#fff';
-  }
-}
+
 
 async function submitFeedback() {
   const msg = document.getElementById('fbMsg');
   const comment = document.getElementById('fbComment').value.trim();
   const flatNo = document.getElementById('fbFlat').value.trim();
+  const name = document.getElementById('fbName').value.trim();
+  const block = document.getElementById('fbBlock').value;
 
-  if(!currentFeedbackThumb && !comment) {
+  if(!comment) {
     msg.style.display = 'block'; msg.style.color = '#dc2626';
-    msg.textContent = 'Please select 👍 or 👎, or leave a comment.';
+    msg.textContent = 'Please enter a comment before submitting.';
+    return;
+  }
+
+  // block/name/flat are mandatory when comment is provided
+  if(!block || !name || !flatNo) {
+    msg.style.display = 'block'; msg.style.color = '#dc2626';
+    msg.textContent = 'Please fill in Block, Name and Flat No.';
     return;
   }
 
   const payload = {
     sop_id: currentFeedbackSopId || undefined,
     sop_title: currentFeedbackSopTitle,
-    thumb: currentFeedbackThumb,
-    comment: comment || null,
+    comment: comment,
+    block: block || null,
+    member_name: name || null,
     flat_no: flatNo || null
   };
 
@@ -1500,10 +1521,13 @@ async function loadFeedback() {
       <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
           <span style="font-size:12px;font-weight:600;color:#1e3a5f;">${i.sop_title || 'Unknown SOP'}</span>
-          <span style="font-size:16px;">${i.thumb === 'up' ? '👍' : i.thumb === 'down' ? '👎' : '💬'}</span>
+          <span style="font-size:16px;">💬</span>
         </div>
-        ${i.comment ? `<div style="font-size:12px;color:#374151;margin-bottom:4px;">"${i.comment}"</div>` : ''}
-        <div style="font-size:11px;color:#9ca3af;">${i.flat_no ? 'Flat ' + i.flat_no + ' · ' : ''}${new Date(i.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>
+        ${i.comment ? `<div style="font-size:12px;color:#374151;margin-bottom:6px;">"${i.comment}"</div>` : ''}
+        <div style="font-size:11px;color:#9ca3af;">
+          ${[i.block, i.member_name, i.flat_no ? 'Flat '+i.flat_no : ''].filter(Boolean).join(' · ')}
+          ${(i.block||i.member_name||i.flat_no) ? ' · ' : ''}${new Date(i.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+        </div>
       </div>`).join('')}`;
 }
 
