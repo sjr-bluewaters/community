@@ -790,8 +790,8 @@ CREATE POLICY "Auth read feedback" ON sop_feedback FOR SELECT USING (auth.role()
 // ════════════════════════════════════════════
 // CONFIG & STATE
 // ════════════════════════════════════════════
-let SUPABASE_URL = localStorage.getItem('sbUrl') || '';
-let SUPABASE_KEY = localStorage.getItem('sbKey') || '';
+let SUPABASE_URL = localStorage.getItem('sbUrl') || 'https://vfwhdlmebcnikvwyruzt.supabase.co';
+let SUPABASE_KEY = localStorage.getItem('sbKey') || 'sb_publishable_y4Ng2pU9m-dkij35kN0dIQ_NU7KGERw';
 let activeCat = 'All';
 let allSOPs = [];   // [{id,title,category,icon,content,file_url,file_name,content_type,created_at}]
 let currentFile = null;
