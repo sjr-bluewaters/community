@@ -754,16 +754,44 @@ function showPage(id) {
 // SUPABASE
 // ════════════════════════════════════════════
 function saveSupabaseConfig() {
-  const url = (document.getElementById('cfgUrl') || document.getElementById('dbUrl')).value.trim();
-  const key = (document.getElementById('cfgKey') || document.getElementById('dbKey')).value.trim();
-  if(!url || !key) { alert('Please enter both URL and key.'); return; }
-  SUPABASE_URL = url; SUPABASE_KEY = key;
-  localStorage.setItem('sbUrl', url); localStorage.setItem('sbKey', key);
+  const urlField =
+    document.getElementById('dbUrl') ||
+    document.getElementById('cfgUrl');
+
+  const keyField =
+    document.getElementById('dbKey') ||
+    document.getElementById('cfgKey');
+
+  const url = urlField ? urlField.value.trim() : '';
+  const key = keyField ? keyField.value.trim() : '';
+
+  if (!url || !key) {
+    alert('Please enter both URL and key.');
+    return;
+  }
+
+  SUPABASE_URL = url;
+  SUPABASE_KEY = key;
+
+  localStorage.setItem('sbUrl', url);
+  localStorage.setItem('sbKey', key);
+
   const msg = document.getElementById('dbSaveMsg');
-  if(msg){ msg.style.display='block'; msg.style.color='#15803d'; msg.textContent='✅ Config saved! Loading SOPs…'; }
-  document.getElementById('configBanner').style.display = 'none';
-  loadSOPs();
+
+  if (msg) {
+    msg.style.display = 'block';
+    msg.style.color = '#15803d';
+    msg.textContent = '✅ Config saved! Loading SOPs…';
+  }
+
+  const banner = document.getElementById('configBanner');
+
+  if (banner) {
+    banner.style.display = 'none';
+  }
+
   updateDBStatus();
+  loadSOPs();
 }
 
 function updateDBStatus() {
