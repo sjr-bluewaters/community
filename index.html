@@ -743,11 +743,11 @@ ALTER TABLE sops ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read" ON sops FOR SELECT USING (true);
 CREATE POLICY "Auth insert" ON sops FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
+DROP TABLE IF EXISTS sop_feedback;
 CREATE TABLE sop_feedback (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   sop_id uuid REFERENCES sops(id) ON DELETE CASCADE,
   sop_title text,
-  thumb text CHECK (thumb IN ('up','down')),
   comment text,
   flat_no text,
   block text,
@@ -756,7 +756,7 @@ CREATE TABLE sop_feedback (
 );
 ALTER TABLE sop_feedback ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public insert feedback" ON sop_feedback FOR INSERT WITH CHECK (true);
-CREATE POLICY "Auth read feedback" ON sop_feedback FOR SELECT USING (true);</div>
+CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);</div>
           <span class="form-label">Step 3 — Enter your credentials:</span>
           <input class="form-input" id="dbUrl" placeholder="Project URL  (https://xxxx.supabase.co)" />
           <input class="form-input" id="dbKey" placeholder="anon / public API key" />
@@ -1467,7 +1467,7 @@ async function submitFeedback() {
   }
 
   const payload = {
-    sop_id: currentFeedbackSopId || undefined,
+    sop_id: currentFeedbackSopId || null,
     sop_title: currentFeedbackSopTitle,
     comment: comment,
     block: block || null,
@@ -1475,10 +1475,10 @@ async function submitFeedback() {
     flat_no: flatNo || null
   };
 
-  // If Supabase connected, save there; otherwise store locally
   if(SUPABASE_URL && SUPABASE_KEY) {
     try {
-      await fetch(SUPABASE_URL + '/rest/v1/sop_feedback', {
+      // Always use anon key for public insert — no auth needed since policy is public
+      const res = await fetch(SUPABASE_URL + '/rest/v1/sop_feedback', {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
@@ -1488,12 +1488,22 @@ async function submitFeedback() {
         },
         body: JSON.stringify(payload)
       });
+
+      if(!res.ok) {
+        const errText = await res.text();
+        console.error('Feedback insert error:', res.status, errText);
+        msg.style.display = 'block';
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Error saving feedback: ' + (JSON.parse(errText).message || errText);
+        return;
+      }
     } catch(e) {
-      // Fallback to local even if Supabase fails
-      saveLocalFeedback(payload);
+      console.error('Feedback network error:', e);
+      msg.style.display = 'block';
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Network error — please try again.';
+      return;
     }
-  } else {
-    saveLocalFeedback(payload);
   }
 
   document.getElementById('sopFeedbackForm').style.display = 'none';
@@ -1515,7 +1525,6 @@ async function loadFeedback() {
 
   if(SUPABASE_URL && SUPABASE_KEY) {
     try {
-      // Use admin session token if available so RLS allows reading feedback
       let authToken = SUPABASE_KEY;
       const raw = localStorage.getItem('sb_admin_session');
       if(raw) { try { authToken = JSON.parse(raw).access_token || SUPABASE_KEY; } catch(e){} }
@@ -1523,9 +1532,25 @@ async function loadFeedback() {
       const res = await fetch(SUPABASE_URL + '/rest/v1/sop_feedback?select=*&order=created_at.desc&limit=50', {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + authToken }
       });
-      items = await res.json();
-      if(!Array.isArray(items)) items = [];
-    } catch(e) { items = []; }
+      const json = await res.json();
+      console.log('Feedback response status:', res.status);
+      console.log('Feedback response:', json);
+      items = Array.isArray(json) ? json : [];
+      if(!Array.isArray(json)) {
+        el.innerHTML = `<div style="font-size:12px;color:#dc2626;padding:8px;background:#fef2f2;border-radius:8px;">
+          Supabase error: ${json.message || json.error || JSON.stringify(json)}<br>
+          <small>Hint: Run the RLS fix SQL in Supabase (see below)</small>
+        </div>
+        <div style="margin-top:12px;background:#1e293b;color:#a5f3fc;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;">
+DROP POLICY IF EXISTS "Auth read feedback" ON sop_feedback;<br>
+CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
+        </div>`;
+        return;
+      }
+    } catch(e) { 
+      console.error('Feedback fetch error:', e);
+      items = []; 
+    }
   }
 
   // Merge in any local feedback
