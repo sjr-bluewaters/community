@@ -908,7 +908,11 @@ async function sbFetch(path, opts={}) {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation', ...opts.headers },
     ...opts
   });
-  if(!res.ok) throw new Error(await res.text());
+  if(!res.ok) {
+    const errBody = await res.text();
+    console.error('sbFetch error', res.status, path, errBody);
+    throw new Error(`HTTP ${res.status}: ${errBody}`);
+  }
   return res.json();
 }
 
@@ -935,11 +939,15 @@ async function loadSOPs() {
     renderHomeSOPs(homeList);
     renderAnnouncements();
   } catch(e) {
+    console.error('loadSOPs error:', e);
     allSOPs = SEED_SOPS;
     renderSOPs();
     renderHomeSOPs(homeList);
     renderAnnouncements();
-    container.innerHTML += '<div style="font-size:11px;color:#f97316;padding:8px;">⚠️ Could not reach Supabase — showing local SOPs only.</div>';
+    container.innerHTML = `<div style="font-size:12px;color:#dc2626;padding:10px;background:#fef2f2;border-radius:8px;margin-top:8px;">
+      ⚠️ Supabase error: ${e.message}<br>
+      <small style="color:#6b7280;">Check browser Console (F12) for details.</small>
+    </div>`;
   }
 }
 
