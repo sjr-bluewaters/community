@@ -799,7 +799,7 @@ function saveSupabaseConfig() {
   if (msg) {
     msg.style.display = 'block';
     msg.style.color = '#15803d';
-    msg.textContent = '✅ Config saved! Loading SOPs…';
+    msg.textContent = '✅ Connected successfully to Supabase! Loading SOPs…';
   }
 
   const banner = document.getElementById('configBanner');
@@ -1116,7 +1116,7 @@ async function loginAdmin() {
   if(!SUPABASE_URL || !SUPABASE_KEY){
     msg.style.display='block';
     msg.style.color='#dc2626';
-    msg.textContent='Configure Supabase first.';
+    msg.textContent='Please connect Supabase first in the Database tab.';
     return;
   }
 
@@ -1209,6 +1209,7 @@ openAdmin = function(){
     if(du) du.value = SUPABASE_URL; if(dk) dk.value = SUPABASE_KEY;
   }
   updateDBStatus();
+  checkExistingSession();
   loadSOPs();
 })();
 </script>
