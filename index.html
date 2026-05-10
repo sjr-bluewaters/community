@@ -1244,17 +1244,37 @@ function logoutAdmin(){
   closeAdmin();
 }
 
-function checkExistingSession(){
-  const session = localStorage.getItem('sb_admin_session');
+async function checkExistingSession(){
+  const raw = localStorage.getItem('sb_admin_session');
+  if(!raw || !SUPABASE_URL || !SUPABASE_KEY) {
+    if(raw) localStorage.removeItem('sb_admin_session'); // stale
+    return;
+  }
 
-  // Only restore session if Supabase is also configured — otherwise clear stale session
-  if(session && SUPABASE_URL && SUPABASE_KEY){
-    isAdminLoggedIn = true;
-    document.getElementById('logoutBtn').style.display='inline-block';
-    document.getElementById('adminAccessBtn').style.display='none';
-  } else if(session && (!SUPABASE_URL || !SUPABASE_KEY)) {
-    // Stale session without a DB — clear it silently
+  try {
+    const session = JSON.parse(raw);
+    const token = session.access_token;
+    if(!token) throw new Error('no token');
+
+    // Verify token is still valid with Supabase
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+    });
+
+    if(res.ok) {
+      const user = await res.json();
+      currentUser = user;
+      isAdminLoggedIn = true;
+      document.getElementById('logoutBtn').style.display = 'inline-block';
+      document.getElementById('adminAccessBtn').style.display = 'none';
+    } else {
+      // Token expired or invalid — clear it
+      localStorage.removeItem('sb_admin_session');
+      isAdminLoggedIn = false;
+    }
+  } catch(e) {
     localStorage.removeItem('sb_admin_session');
+    isAdminLoggedIn = false;
   }
 }
 
