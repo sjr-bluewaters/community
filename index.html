@@ -1023,7 +1023,18 @@ document.getElementById('sopModal').addEventListener('click', e => {
 // ════════════════════════════════════════════
 // ADMIN MODAL
 // ════════════════════════════════════════════
-function openAdmin() { document.getElementById('adminModal').classList.add('open'); }
+function openAdmin(){
+  document.getElementById('adminModal').classList.add('open');
+  if(isAdminLoggedIn){
+    document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
+    document.getElementById('aDash').classList.add('active');
+    document.querySelectorAll('.atab').forEach(t=>t.style.display='inline-block');
+  } else {
+    document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
+    document.getElementById('aLogin').classList.add('active');
+    document.querySelectorAll('.atab').forEach(t=>t.style.display='none');
+  }
+}
 function closeAdmin() { document.getElementById('adminModal').classList.remove('open'); }
 document.getElementById('adminModal').addEventListener('click', e => {
   if(e.target === document.getElementById('adminModal')) closeAdmin();
@@ -1278,24 +1289,12 @@ async function checkExistingSession(){
   }
 }
 
-const originalOpenAdmin = openAdmin;
-
-openAdmin = function(){
-  document.getElementById('adminModal').classList.add('open');
-
-  if(isAdminLoggedIn){
-    document.getElementById('aLogin').classList.remove('active');
-    document.getElementById('aDash').classList.add('active');
-  } else {
-    document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
-    document.getElementById('aLogin').classList.add('active');
-
-    document.querySelectorAll('.atab').forEach(t=>t.style.display='none');
-  }
-}
 
 // ── Init ──────────────────────────────────────────────────────────
 (function init(){
+  // Always ensure modal is closed on page load — never auto-open
+  document.getElementById('adminModal').classList.remove('open');
+
   // Restore config
   if(SUPABASE_URL && SUPABASE_KEY) {
     document.getElementById('configBanner').style.display = 'none';
