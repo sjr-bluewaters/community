@@ -248,7 +248,7 @@ body{
       <div class="loc">Parappana Agrahara, Bangalore</div>
     </div>
     <div class="topbar-right">
-      <div class="supabase-indicator loading" id="dbStatus">⏳ Connecting…</div>
+      <div class="supabase-indicator" id="dbStatus" style="display:none;"></div>
       <button class="btn btn-dark" id="adminAccessBtn" onclick="openAdmin()">🔐 Admin Login</button>
 <button class="btn btn-red" id="logoutBtn" onclick="logoutAdmin()" style="display:none;">Logout</button>
     </div>
@@ -316,30 +316,10 @@ body{
     <!-- Home grid: left=announcements+SOPs, right=blocks+events -->
     <div class="home-grid">
       <div>
-        <!-- Announcements -->
+        <!-- Announcements (dynamic) -->
         <div class="card">
-          <h2>📢 Announcements <span class="pill pill-orange" style="margin-left:4px">2 New</span></h2>
-          <div class="ann-row">
-            <div class="ann-dot"></div>
-            <div>
-              <div class="ann-text">Water supply shutdown on May 12, 6AM–2PM for maintenance work</div>
-              <div class="ann-meta">Today &nbsp;·&nbsp; <span class="pill pill-blue">Maintenance</span></div>
-            </div>
-          </div>
-          <div class="ann-row">
-            <div class="ann-dot"></div>
-            <div>
-              <div class="ann-text">Annual General Meeting scheduled — May 18 at Clubhouse, 6PM</div>
-              <div class="ann-meta">2 days ago &nbsp;·&nbsp; <span class="pill pill-teal">Meeting</span></div>
-            </div>
-          </div>
-          <div class="ann-row">
-            <div class="ann-dot" style="background:#6b7280"></div>
-            <div>
-              <div class="ann-text">New Swimming Pool SOP published — please read before using the pool</div>
-              <div class="ann-meta">4 days ago &nbsp;·&nbsp; <span class="pill pill-green">SOP</span></div>
-            </div>
-          </div>
+          <h2>📢 Announcements <span class="pill pill-orange" style="margin-left:4px;display:none;" id="ann-badge">0 New</span></h2>
+          <div id="ann-list"><div class="sop-loading">Loading…</div></div>
         </div>
 
         <!-- Recent SOPs -->
@@ -817,10 +797,13 @@ function updateDBStatus() {
   const el = document.getElementById('dbStatus');
   const da = document.getElementById('dash-db-status');
   if(SUPABASE_URL && SUPABASE_KEY) {
-    el.textContent = '🟢 Supabase Live'; el.className='supabase-indicator';
+    el.textContent = '🟢 Supabase Live';
+    el.className = 'supabase-indicator';
+    el.style.display = 'inline-block';
     if(da) da.textContent = 'Connected ✓';
   } else {
-    el.textContent = '⚡ Demo Mode'; el.className='supabase-indicator loading';
+    // Don't show anything in the header when not connected — no confusing "Connecting..." state
+    el.style.display = 'none';
     if(da) da.textContent = 'Not connected';
   }
 }
@@ -855,10 +838,12 @@ async function loadSOPs() {
     renderSOPs();
     renderAdminSOPList();
     renderHomeSOPs(homeList);
+    renderAnnouncements();
   } catch(e) {
     allSOPs = SEED_SOPS;
     renderSOPs();
     renderHomeSOPs(homeList);
+    renderAnnouncements();
     container.innerHTML += '<div style="font-size:11px;color:#f97316;padding:8px;">⚠️ Could not reach Supabase — showing local SOPs only.</div>';
   }
 }
@@ -871,6 +856,84 @@ function renderHomeSOPs(el) {
       <div><h4>${s.icon||'📋'} ${s.title}</h4><p>${s.category} ${s.file_name?'· 📎 PDF':''}</p></div>
       <button class="btn btn-sm" onclick="event.stopPropagation();openSOP('${s.id}')">View</button>
     </div>`).join('');
+}
+
+// ════════════════════════════════════════════
+// ANNOUNCEMENTS
+// ════════════════════════════════════════════
+// Fixed events — set expiry to the day of the event (auto-hides after that date)
+const FIXED_ANNOUNCEMENTS = [
+  { text: 'Annual General Meeting scheduled — May 18 at Clubhouse, 6PM', tag: 'Meeting', tagClass: 'pill-teal', expires: '2025-05-18' },
+];
+
+function renderAnnouncements() {
+  const el = document.getElementById('ann-list');
+  const badge = document.getElementById('ann-badge');
+  if (!el) return;
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+
+  // 1. Fixed announcements that haven't expired yet
+  const fixedItems = FIXED_ANNOUNCEMENTS.filter(a => new Date(a.expires) >= now).map(a => ({
+    text: a.text,
+    tag: a.tag,
+    tagClass: a.tagClass,
+    date: null,
+    isNew: true
+  }));
+
+  // 2. SOPs added in the last 7 days
+  const sopItems = allSOPs
+    .filter(s => s.created_at && new Date(s.created_at) >= sevenDaysAgo)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .map(s => ({
+      text: `New SOP published — ${s.title}`,
+      tag: 'SOP',
+      tagClass: 'pill-green',
+      date: new Date(s.created_at),
+      isNew: true,
+      sopId: s.id
+    }));
+
+  const all = [...fixedItems, ...sopItems];
+
+  if (!all.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#9ca3af;padding:12px 0;">No announcements at the moment.</div>';
+    badge.style.display = 'none';
+    return;
+  }
+
+  // Badge count
+  const newCount = all.filter(a => a.isNew).length;
+  if (newCount > 0) {
+    badge.textContent = newCount + ' New';
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  el.innerHTML = all.map((a, i) => {
+    const dotColor = i === 0 ? '#0369a1' : '#6b7280';
+    const dateStr = a.date ? relativeDate(a.date) : '';
+    const metaParts = [dateStr, `<span class="pill ${a.tagClass}">${a.tag}</span>`].filter(Boolean);
+    const clickAttr = a.sopId ? `style="cursor:pointer;" onclick="openSOP('${a.sopId}')"` : '';
+    return `
+      <div class="ann-row" ${clickAttr}>
+        <div class="ann-dot" style="background:${dotColor}"></div>
+        <div>
+          <div class="ann-text">${a.text}</div>
+          <div class="ann-meta">${metaParts.join(' &nbsp;·&nbsp; ')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function relativeDate(d) {
+  const diff = Math.floor((Date.now() - new Date(d)) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return diff + ' days ago';
 }
 
 // ════════════════════════════════════════════
@@ -928,7 +991,17 @@ function openSOP(id) {
   const dlBtn = document.getElementById('sopDownloadBtn');
   if(sop.content_type === 'pdf' && sop.file_url) {
     body.innerHTML = `<iframe class="sop-pdf-frame" src="${sop.file_url}" title="${sop.title}"></iframe>`;
-    body.style.padding = '0'; dlBtn.style.display='block'; dlBtn.onclick = ()=>window.open(sop.file_url,'_blank');
+    body.style.padding = '0'; dlBtn.style.display='block';
+    dlBtn.onclick = () => {
+      if(sop.file_url.startsWith('data:')) {
+        const a = document.createElement('a');
+        a.href = sop.file_url;
+        a.download = sop.file_name || (sop.title + '.pdf');
+        a.click();
+      } else {
+        window.open(sop.file_url, '_blank');
+      }
+    };
   } else if(sop.content_type === 'text' && sop.content) {
     body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
   } else if(sop.content) {
@@ -1176,11 +1249,14 @@ function logoutAdmin(){
 function checkExistingSession(){
   const session = localStorage.getItem('sb_admin_session');
 
-  if(session){
+  // Only restore session if Supabase is also configured — otherwise clear stale session
+  if(session && SUPABASE_URL && SUPABASE_KEY){
     isAdminLoggedIn = true;
-
     document.getElementById('logoutBtn').style.display='inline-block';
     document.getElementById('adminAccessBtn').style.display='none';
+  } else if(session && (!SUPABASE_URL || !SUPABASE_KEY)) {
+    // Stale session without a DB — clear it silently
+    localStorage.removeItem('sb_admin_session');
   }
 }
 
