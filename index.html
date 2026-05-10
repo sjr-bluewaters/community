@@ -1,808 +1,1076 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SJR Bluewaters Community Portal</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
 
 body{
-background:
-linear-gradient(rgba(243,244,246,0.9), rgba(243,244,246,0.9)),
-url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600&auto=format&fit=crop')
-center/cover fixed;
-padding:30px;
+  background:linear-gradient(rgba(240,249,255,0.92),rgba(240,249,255,0.92)),
+  url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600&auto=format&fit=crop') center/cover fixed;
+  min-height:100vh;
 }
 
-.portal{
-max-width:1280px;
-margin:auto;
-background:white;
-border-radius:28px;
-overflow:hidden;
-box-shadow:0 20px 60px rgba(0,0,0,0.15);
-}
+/* ── PORTAL SHELL ───────────────────────── */
+.portal{max-width:1280px;margin:30px auto;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.13);}
 
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 28px;
-border-bottom:1px solid #eee;
-}
+/* ── TOPBAR ─────────────────────────────── */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;border-bottom:1px solid #e5e7eb;background:#fff;}
+.topbar-brand{}
+.topbar-brand .name{font-size:13px;font-weight:800;color:#0369a1;letter-spacing:.04em;}
+.topbar-brand .loc{font-size:11px;color:#94a3b8;margin-top:1px;}
+.topbar-right{display:flex;gap:10px;align-items:center;}
+.supabase-indicator{font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.supabase-indicator.error{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+.supabase-indicator.loading{background:#fffbeb;color:#92400e;border-color:#fde68a;}
+.btn{background:#0369a1;color:#fff;border:none;padding:9px 18px;border-radius:11px;font-weight:700;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;}
+.btn:hover{background:#0284c7;}
+.btn-dark{background:#111827;}
+.btn-dark:hover{background:#1f2937;}
+.btn-red{background:#dc2626;}
+.btn-red:hover{background:#b91c1c;}
+.btn-sm{padding:6px 13px;font-size:12px;}
 
-.hero{
-background:linear-gradient(135deg,#059669,#0d9488);
-color:white;
-padding:45px;
-border-radius:28px;
-margin-bottom:20px;
-}
+/* ── MAIN NAV ───────────────────────────── */
+.main-nav{display:flex;gap:2px;padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e5e7eb;overflow-x:auto;}
+.nav-tab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:12px;font-weight:600;font-size:13px;color:#64748b;cursor:pointer;white-space:nowrap;border:none;background:none;font-family:'Inter',sans-serif;transition:all .15s;}
+.nav-tab:hover{background:#e0f2fe;color:#0369a1;}
+.nav-tab.active{background:#0369a1;color:#fff;}
+.nav-tab .nic{font-size:17px;}
 
-.hero h1{
-font-size:60px;
-margin-bottom:10px;
-}
+/* ── PAGE CONTENT ───────────────────────── */
+.page{display:none;padding:28px;}
+.page.active{display:block;}
 
-.hero p{
-font-size:22px;
-opacity:0.95;
+/* ── HOME PAGE ──────────────────────────── */
+.home-hero{
+  background:linear-gradient(135deg,#0369a1 0%,#0891b2 60%,#06b6d4 100%);
+  color:#fff;border-radius:22px;padding:40px 44px;margin-bottom:24px;position:relative;overflow:hidden;
 }
+.home-hero::after{content:'🌊';position:absolute;right:-10px;bottom:-20px;font-size:140px;opacity:.08;line-height:1;}
+.home-hero .welcome{font-size:11px;font-weight:700;letter-spacing:.14em;color:#bae6fd;margin-bottom:8px;text-transform:uppercase;}
+.home-hero h1{font-size:48px;font-weight:800;margin-bottom:6px;line-height:1.1;}
+.home-hero .tagline{font-size:17px;color:#bae6fd;margin-bottom:6px;}
+.home-hero .desc{font-size:14px;color:#e0f2fe;line-height:1.7;max-width:680px;}
+.home-stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px;}
+.stat-chip{background:rgba(255,255,255,.15);border-radius:14px;padding:12px 20px;text-align:center;min-width:90px;}
+.stat-chip .sv{font-size:22px;font-weight:800;}
+.stat-chip .sl{font-size:10px;color:#bae6fd;margin-top:2px;}
 
-.content{
-display:grid;
-grid-template-columns:1.15fr 0.85fr;
-gap:24px;
-padding:24px;
-}
+.home-grid{display:grid;grid-template-columns:1.3fr 0.7fr;gap:20px;}
+@media(max-width:900px){.home-grid{grid-template-columns:1fr;}}
 
-.card{
-background:white;
-border-radius:22px;
-padding:24px;
-margin-bottom:20px;
-border:1px solid #edf2f7;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
-}
+.card{background:#fff;border-radius:18px;padding:22px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:20px;}
+.card h2{font-size:16px;font-weight:700;color:#1e3a5f;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #f1f5f9;}
+.card-row:last-child{border-bottom:none;}
+.card-row h4{font-size:14px;font-weight:600;color:#1f2937;margin-bottom:2px;}
+.card-row p{font-size:12px;color:#6b7280;}
 
-.card h2{
-margin-bottom:20px;
-color:#1f2937;
-}
+.ann-dot{width:8px;height:8px;border-radius:50%;background:#0369a1;flex-shrink:0;margin-top:5px;}
+.ann-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f1f5f9;}
+.ann-row:last-child{border-bottom:none;}
+.ann-text{font-size:13px;color:#374151;margin-bottom:3px;}
+.ann-meta{font-size:11px;color:#9ca3af;}
 
-.item{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:16px 0;
-border-bottom:1px solid #f3f4f6;
-}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;display:inline-block;}
+.pill-blue{background:#dbeafe;color:#1d4ed8;}
+.pill-green{background:#dcfce7;color:#15803d;}
+.pill-orange{background:#ffedd5;color:#c2410c;}
+.pill-teal{background:#ccfbf1;color:#0f766e;}
+.pill-red{background:#fee2e2;color:#b91c1c;}
 
-.item:last-child{
-border-bottom:none;
-}
+/* Quick tiles */
+.quick-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:700px){.quick-tiles{grid-template-columns:repeat(4,1fr);}}
+.qtile{border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;border:1px solid transparent;transition:transform .15s,box-shadow .15s;}
+.qtile:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.09);}
+.qtile .qi{font-size:26px;margin-bottom:6px;}
+.qtile .ql{font-size:11px;font-weight:700;}
 
-.item h4{
-font-size:22px;
-margin-bottom:4px;
-}
+.blocks-wrap{display:flex;flex-wrap:wrap;gap:7px;}
+.block-chip{background:#f0f9ff;border:1px solid #bae6fd;color:#0369a1;border-radius:8px;padding:4px 11px;font-size:12px;font-weight:600;}
 
-.item p{
-color:#6b7280;
-font-size:15px;
-}
+/* ── SOP PAGE ───────────────────────────── */
+.sop-toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.search-box{flex:1;min-width:180px;border:1px solid #e5e7eb;border-radius:10px;padding:8px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;}
+.search-box:focus{border-color:#0369a1;}
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.fbtn{font-size:11px;padding:5px 13px;border-radius:99px;font-weight:700;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.fbtn.active{background:#0369a1;color:#fff;border-color:#0369a1;}
+.fbtn:hover:not(.active){background:#f0f9ff;color:#0369a1;border-color:#bae6fd;}
 
-.btn{
-background:#059669;
-color:white;
-border:none;
-padding:10px 18px;
-border-radius:12px;
-font-weight:700;
-cursor:pointer;
-}
+.sop-list{display:flex;flex-direction:column;gap:10px;}
+.sop-card{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:16px 18px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.sop-card:hover{border-color:#0369a1;box-shadow:0 2px 12px rgba(3,105,161,.1);}
+.sop-ico{font-size:26px;flex-shrink:0;}
+.sop-info{flex:1;}
+.sop-title{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:5px;}
+.sop-meta-row{display:flex;gap:8px;align-items:center;}
+.sop-updated{font-size:11px;color:#9ca3af;}
+.sop-chevron{color:#cbd5e1;font-size:18px;flex-shrink:0;}
+.sop-empty{text-align:center;padding:48px;color:#94a3b8;}
+.sop-empty .ei{font-size:44px;margin-bottom:12px;}
+.sop-loading{text-align:center;padding:36px;color:#94a3b8;font-size:14px;}
 
-.bottom-nav{
-display:flex;
-justify-content:space-around;
-padding:18px;
-border-top:1px solid #eee;
-background:white;
-position:sticky;
-bottom:0;
-overflow-x:auto;
-}
+/* ── SOP VIEWER MODAL ───────────────────── */
+#sopModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center;padding:20px;}
+#sopModal.open{display:flex;}
+.sop-modal-box{width:100%;max-width:980px;height:90vh;background:#fff;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.3);}
+.sop-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #e5e7eb;flex-shrink:0;}
+.sop-modal-title{font-size:16px;font-weight:700;color:#1e3a5f;display:flex;align-items:center;gap:10px;}
+.sop-modal-meta{padding:10px 22px;border-bottom:1px solid #f1f5f9;display:flex;gap:10px;align-items:center;flex-shrink:0;background:#f8fafc;}
+.sop-modal-body{flex:1;overflow:auto;padding:28px 30px;line-height:1.8;color:#374151;font-size:14px;}
+.sop-modal-body h3{font-size:15px;font-weight:700;color:#1e3a5f;margin:18px 0 8px;}
+.sop-modal-body h3:first-child{margin-top:0;}
+.sop-modal-body ul{padding-left:20px;margin-bottom:12px;}
+.sop-modal-body ul li{margin-bottom:4px;}
+.sop-modal-body p{margin-bottom:10px;}
+.sop-modal-body .note{background:#eff6ff;border-left:3px solid #0369a1;border-radius:0 10px 10px 0;padding:12px 16px;font-size:13px;color:#1d4ed8;margin:14px 0;}
+.sop-pdf-frame{width:100%;height:100%;border:none;}
 
-.nav-item{
-text-align:center;
-font-weight:700;
-color:#4b5563;
-cursor:pointer;
-min-width:120px;
-}
+/* ── ADMIN MODAL ────────────────────────── */
+#adminModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;justify-content:center;align-items:flex-start;padding:20px;overflow-y:auto;}
+#adminModal.open{display:flex;}
+.admin-box{width:100%;max-width:700px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
+.admin-header{background:#111827;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;}
+.admin-header h2{color:#fff;font-size:16px;font-weight:700;}
+.admin-tabs{display:flex;background:#1f2937;padding:0 16px;gap:2px;}
+.atab{font-size:12px;padding:9px 14px;font-weight:700;color:#94a3b8;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;border-radius:8px 8px 0 0;}
+.atab.active{background:#f8fafc;color:#111827;}
+.admin-body{padding:22px;background:#f8fafc;}
+.asection{display:none;}
+.asection.active{display:block;}
+.form-label{font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.form-input{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 13px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;}
+.form-input:focus{border-color:#0369a1;}
+.form-textarea{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 13px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;resize:vertical;min-height:80px;}
+.form-select{width:100%;border:1px solid #e5e7eb;border-radius:10px;padding:9px 13px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;color:#374151;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-submit{background:#0369a1;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%;font-family:'Inter',sans-serif;}
+.form-submit:hover{background:#0284c7;}
 
-.nav-item div{
-font-size:28px;
-margin-bottom:4px;
-}
+/* Upload zone */
+.upload-zone{border:2px dashed #bae6fd;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#f0f9ff;transition:background .2s;margin-bottom:10px;}
+.upload-zone:hover{background:#e0f2fe;}
+.upload-zone input{display:none;}
+.upload-zone .uz-icon{font-size:32px;margin-bottom:8px;}
+.upload-zone p{font-size:13px;color:#0369a1;font-weight:600;margin-bottom:2px;}
+.upload-zone span{font-size:11px;color:#6b7280;}
+.file-preview{display:none;align-items:center;gap:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 14px;margin-bottom:10px;}
+.file-preview-name{font-size:12px;color:#0369a1;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-.panel{
-display:none;
-padding:24px;
-background:#f8fafc;
-border-top:1px solid #e5e7eb;
-}
+/* Content tab switcher */
+.content-tabs{display:flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.ctab{flex:1;padding:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.ctab.active{background:#0369a1;color:#fff;}
+.ctab:not(.active){background:#fff;color:#6b7280;}
 
-.panel.active{
-display:block;
-}
+/* Admin list */
+.alist-item{background:#fff;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border:1px solid #e5e7eb;}
+.alist-name{font-size:13px;color:#374151;flex:1;}
+.alist-actions{display:flex;gap:10px;flex-shrink:0;}
+.aact-edit{font-size:11px;color:#3b82f6;font-weight:700;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+.aact-del{font-size:11px;color:#ef4444;font-weight:700;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+.aact-arc{font-size:11px;color:#f97316;font-weight:700;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
 
-.panel-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:18px;
-}
+/* ── OTHER SECTION STYLES ───────────────── */
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:700px){.panel-grid{grid-template-columns:1fr;}}
+.info-box{background:#fff;padding:18px;border-radius:16px;border:1px solid #e5e7eb;}
+.info-box h3{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:8px;}
+.info-box p{font-size:13px;color:#4b5563;line-height:1.8;}
 
-.info-box{
-background:white;
-padding:18px;
-border-radius:18px;
-border:1px solid #e5e7eb;
-}
+.committee-card{background:#fff;padding:18px;border-radius:16px;margin-bottom:12px;border:1px solid #e5e7eb;}
+.committee-card h3{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:6px;}
+.committee-card p{font-size:13px;color:#4b5563;margin-bottom:8px;}
+.join-tag{background:#ecfdf5;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;color:#065f46;}
 
-.committee{
-background:white;
-padding:18px;
-border-radius:18px;
-margin-bottom:16px;
-border:1px solid #e5e7eb;
-}
+.expand-box{background:#fff;border:1px solid #e5e7eb;border-radius:16px;margin-bottom:12px;overflow:hidden;}
+.expand-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;cursor:pointer;font-weight:700;font-size:15px;color:#1e3a5f;}
+.expand-header:hover{background:#f8fafc;}
+.expand-content{display:none;padding:0 18px 18px;color:#4b5563;line-height:1.9;font-size:13px;}
+.expand-content.open{display:block;}
+.plus-icon{font-size:22px;color:#0369a1;transition:transform .2s;}
+.plus-icon.open{transform:rotate(45deg);}
 
-.join{
-margin-top:10px;
-background:#ecfdf5;
-padding:10px 12px;
-border-radius:12px;
-font-size:14px;
-font-weight:600;
-color:#065f46;
-}
+.amenity-img-placeholder{margin-top:12px;height:160px;border-radius:14px;background:linear-gradient(135deg,#e0f2fe,#f0f9ff);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#94a3b8;font-size:13px;font-weight:600;gap:6px;border:2px dashed #bae6fd;}
 
-.expand-box{
-background:white;
-border:1px solid #e5e7eb;
-border-radius:18px;
-margin-bottom:16px;
-overflow:hidden;
-}
+.mc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:900px){.mc-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.mc-grid{grid-template-columns:1fr 1fr;}}
+.mc-card{background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:18px;text-align:center;}
+.mc-photo{height:110px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:12px;}
+.mc-name{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:4px;}
+.mc-role{font-size:12px;color:#0369a1;font-weight:600;margin-bottom:6px;}
+.mc-block{font-size:11px;color:#6b7280;margin-bottom:6px;}
+.mc-focus{font-size:11px;color:#4b5563;line-height:1.5;}
 
-.expand-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px;
-cursor:pointer;
-font-weight:700;
-font-size:18px;
-}
+.emergency-alert{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:16px 20px;margin-bottom:18px;}
+.emergency-alert p{font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:10px;}
+.emergency-alert button{width:100%;background:#dc2626;color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
 
-.expand-content{
-display:none;
-padding:0 18px 18px;
-color:#4b5563;
-line-height:2;
-}
+.section-title{font-size:22px;font-weight:800;color:#1e3a5f;margin-bottom:4px;}
+.section-sub{font-size:13px;color:#64748b;margin-bottom:20px;}
 
-.expand-content.active{
-display:block;
-}
-
-.plus{
-font-size:28px;
-font-weight:700;
-color:#059669;
-}
-
-.amenity-image{
-margin-top:12px;
-height:180px;
-border-radius:16px;
-background:#e5e7eb;
-display:flex;
-justify-content:center;
-align-items:center;
-color:#6b7280;
-font-weight:600;
-}
-
-#sopModal{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.75);
-justify-content:center;
-align-items:center;
-padding:30px;
-z-index:999;
-}
-
-.modal{
-width:100%;
-max-width:1200px;
-height:90vh;
-background:white;
-border-radius:24px;
-overflow:hidden;
-display:flex;
-flex-direction:column;
-}
-
-.modal-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:16px 24px;
-border-bottom:1px solid #eee;
-}
-
-iframe{
-flex:1;
-border:none;
-}
+/* ── SUPABASE CONFIG BANNER ─────────────── */
+.config-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px 20px;margin-bottom:20px;}
+.config-banner h3{font-size:14px;font-weight:700;color:#92400e;margin-bottom:8px;}
+.config-banner p{font-size:12px;color:#78350f;line-height:1.7;margin-bottom:10px;}
+.config-banner code{background:#fef3c7;padding:2px 7px;border-radius:5px;font-family:monospace;font-size:12px;}
+.config-fields{display:flex;gap:8px;flex-wrap:wrap;}
+.config-fields input{flex:1;min-width:200px;border:1px solid #fde68a;border-radius:8px;padding:7px 11px;font-size:12px;font-family:'Inter',sans-serif;background:#fff;}
+.config-fields button{background:#0369a1;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
 
 @media(max-width:900px){
-
-body{
-padding:0;
+  body{background:#f0f9ff;}
+  .portal{margin:0;border-radius:0;box-shadow:none;}
+  .home-hero{padding:28px 24px;}
+  .home-hero h1{font-size:34px;}
+  .home-hero .desc{font-size:13px;}
+  .page{padding:16px;}
+  .quick-tiles{grid-template-columns:repeat(4,1fr);}
+  .mc-grid{grid-template-columns:1fr 1fr;}
 }
-
-.portal{
-border-radius:0;
-}
-
-.content{
-grid-template-columns:1fr;
-}
-
-.panel-grid{
-grid-template-columns:1fr;
-}
-
-.hero h1{
-font-size:42px;
-}
-
-.hero p{
-font-size:18px;
-}
-}
-
 </style>
 </head>
-
 <body>
-
 <div class="portal">
 
-<div class="header">
-
-<div>
-<div style="font-size:11px;font-weight:800;color:#9ca3af;">SJR BLUEWATERS</div>
-<div style="font-size:13px;color:#cbd5e1;">Parappana Agrahara, Bangalore</div>
-</div>
-
-<button class="btn" style="background:#111827;">⚙ Admin</button>
-
-</div>
-
-<div class="content">
-
-<div>
-
-<div class="hero">
-<h1>SJR Bluewaters</h1>
-<p>Community Portal · Parappana Agrahara</p>
-</div>
-
-<div class="card">
-
-<h2>📋 SOP Library</h2>
-
-<div class="item">
-
-<div>
-<h4>Visitor Parking Rules</h4>
-<p>Version 1.0 · Parking</p>
-</div>
-
-<button class="btn" onclick="openSOP('https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf')">
-View
-</button>
-
-</div>
-
-<div class="item">
-
-<div>
-<h4>Swimming Pool Usage</h4>
-<p>Version 1.2 · Amenities</p>
-</div>
-
-<button class="btn" onclick="openSOP('https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf')">
-View
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<div>
-
-<div class="card">
-
-<h2>📢 Announcements</h2>
-
-<div class="item">
-<div>
-<h4>Water Shutdown</h4>
-<p>May 12 · 6AM–2PM</p>
-</div>
-</div>
-
-<div class="item">
-<div>
-<h4>AGM Meeting</h4>
-<p>May 18 · Clubhouse</p>
-</div>
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>🏢 Community Blocks</h2>
-
-<p style="line-height:2;color:#4b5563;">
-Alston · Boston · Clarence · Crescent · Greenwich · Goldcoast ·
-Hamstead A · Hamstead B · Hamstead AB · Kensington ·
-Mayfair · Primrose
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="bottom-nav">
-<div class="nav-item" onclick="togglePanel('homePanel')">
-<div>🏡</div>
-Home
-</div>
-
-<div class="nav-item" onclick="togglePanel('sopPanel')">
-<div>📋</div>
-SOPs
-</div>
-
-<div class="nav-item" onclick="togglePanel('mcPanel')">
-<div>👥</div>
-MC Members
-</div>
-
-<div class="nav-item" onclick="togglePanel('committeePanel')">
-<div>🤝</div>
-Committees
-</div>
-
-<div class="nav-item" onclick="togglePanel('emergencyPanel')">
-<div>🚨</div>
-Emergency
-</div>
-
-<div class="nav-item" onclick="togglePanel('helpersPanel')">
-<div>🩺</div>
-Community Helper
-</div>
-
-<div class="nav-item" onclick="togglePanel('amenitiesPanel')">
-<div>🏊</div>
-Amenities
-</div>
-
-<div class="nav-item" onclick="togglePanel('eventsPanel')">
-<div>🎉</div>
-Events
-</div>
-</div>
-
-</div>
-
-<div id="homePanel" class="panel active">
-
-<h2>🏡 Welcome to SJR Bluewaters</h2>
-
-<p style="line-height:2;color:#4b5563;">
-Resident portal for SOPs, emergency support, committees,
-events, community helpers and amenities.
-</p>
-
-</div>
-
-<div id="sopPanel" class="panel">
-
-<h2>📋 SOP Information</h2>
-
-<p style="line-height:2;color:#4b5563;">
-Residents can access all approved SOPs directly online without downloading documents separately.
-</p>
-
-</div>
-
-<div id="committeePanel" class="panel">
-
-<h2>🤝 Community Subcommittees</h2>
-
-<div class="committee">
-<h3>🌱 Green Committee</h3>
-<p>Volunteers: Arun Nair, Priya Menon, Karthik S</p>
-<div class="join">Interested to join? Reach out to: greencommittee@sjrbw.org</div>
-</div>
-
-<div class="committee">
-<h3>♻ Waste Management</h3>
-<p>Volunteers: Sneha Rao, Vivek Kumar</p>
-<div class="join">Interested to join? Reach out to: waste@sjrbw.org</div>
-</div>
-
-<div class="committee">
-<h3>🎭 Cultural Committee</h3>
-<p>Volunteers: Meera Iyer, Pooja Sharma</p>
-<div class="join">Interested to join? Reach out to: cultural@sjrbw.org</div>
-</div>
-
-<div class="committee">
-<h3>⚖ Legal Committee</h3>
-<p>Volunteers: Rajiv Menon, Deepa Krishnan</p>
-<div class="join">Interested to join? Reach out to: legal@sjrbw.org</div>
-</div>
-
-</div>
-
-<div id="eventsPanel" class="panel">
-
-<div class="panel-grid">
-
-<div class="info-box">
-<h3>🎉 Children's Festival</h3>
-<p>
-Date: May 18<br>
-Venue: Clubhouse Lawn<br>
-Coordinator: Meera Iyer
-</p>
-</div>
-
-<div class="info-box">
-<h3>🧘 Weekend Yoga</h3>
-<p>
-Every Saturday<br>
-Garden Area<br>
-Coordinator: Vivek Kumar
-</p>
-</div>
-
-</div>
-
-</div>
-
-<div id="emergencyPanel" class="panel">
-
-<div class="panel-grid">
-
-<div class="info-box">
-<h3>🚔 Emergency Contacts</h3>
-<p>
-Police: 100<br>
-Ambulance: 108<br>
-Fire: 101<br>
-Women Helpline: 1091
-</p>
-</div>
-
-<div class="info-box">
-<h3>🏥 Nearby Hospitals</h3>
-<p>
-Narayana Health: +91 9876543210<br>
-Sparsh Hospital: +91 9988776655<br>
-Apollo Clinic: +91 9123456780
-</p>
-</div>
-
-</div>
-
-</div>
-
-<div id="helpersPanel" class="panel">
-
-<h2>🩺 Community Helper Directory</h2>
-
-<div class="expand-box">
-<div class="expand-header" onclick="toggleExpand('ortho')">
-🦴 Ortho / Spine Specialists
-<span class="plus">+</span>
-</div>
-
-<div id="ortho" class="expand-content">
-Dr. Ramesh Ortho Clinic — +91 9988123412<br>
-Dr. Spine Care Center — +91 9845123412<br>
-Advanced Spine Institute — +91 9876501122
-</div>
-</div>
-
-<div class="expand-box">
-<div class="expand-header" onclick="toggleExpand('ent')">
-👂 ENT Specialists
-<span class="plus">+</span>
-</div>
-
-<div id="ent" class="expand-content">
-Dr. Mehta ENT Care — +91 9845012345<br>
-Sound & Hearing Clinic — +91 9988771122
-</div>
-</div>
-
-<div class="expand-box">
-<div class="expand-header" onclick="toggleExpand('car')">
-🚗 Car Service Centers
-<span class="plus">+</span>
-</div>
-
-<div id="car" class="expand-content">
-Bluewheel Auto Garage — +91 9876500011<br>
-QuickFix Car Care — +91 9988112299
-</div>
-</div>
-
-<div class="expand-box">
-<div class="expand-header" onclick="toggleExpand('bike')">
-🏍 Bike Repair Centers
-<span class="plus">+</span>
-</div>
-
-<div id="bike" class="expand-content">
-MotoFast Repairs — +91 9888776655<br>
-2Wheel Experts — +91 9123456777
-</div>
-</div>
-
-</div>
-
-<div id="amenitiesPanel" class="panel">
-
-<h2>🏊 Society Amenities</h2>
-
-<div class="expand-box">
-
-<div class="expand-header" onclick="toggleExpand('pool')">
-🏊 Swimming Pool
-<span class="plus">+</span>
-</div>
-
-<div id="pool" class="expand-content">
-
-Large family swimming pool with separate kids section and deck seating area.
-
-<div class="amenity-image">
-Space to upload Swimming Pool photo
-</div>
-
-</div>
-
-</div>
-
-<div class="expand-box">
-
-<div class="expand-header" onclick="toggleExpand('clubhouse')">
-🏢 Clubhouse
-<span class="plus">+</span>
-</div>
-
-<div id="clubhouse" class="expand-content">
-
-Multi-purpose clubhouse for community events, meetings and indoor activities.
-
-<div class="amenity-image">
-Space to upload Clubhouse photo
-</div>
-
-</div>
-
-</div>
-
-<div class="expand-box">
-
-<div class="expand-header" onclick="toggleExpand('gym')">
-🏋 Gymnasium
-<span class="plus">+</span>
-</div>
-
-<div id="gym" class="expand-content">
-
-Fully equipped fitness center with cardio and strength training equipment.
-
-<div class="amenity-image">
-Space to upload Gym photo
-</div>
-
-</div>
-
-</div>
-
-<div class="expand-box">
-
-<div class="expand-header" onclick="toggleExpand('court')">
-🏸 Badminton Court
-<span class="plus">+</span>
-</div>
-
-<div id="court" class="expand-content">
-
-Indoor badminton courts available for residents with booking facility.
-
-<div class="amenity-image">
-Space to upload Court photo
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<div id="mcPanel" class="panel">
-
-<h2>👥 Managing Committee Members</h2>
-
-<div class="panel-grid">
-
-<div class="info-box">
-<div style="height:180px;background:#e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#6b7280;font-weight:600;">
-MC Member Photo
-</div>
-
-<h3>Rajesh Nair</h3>
-
-<p>
-President<br>
-Block: Kensington<br>
-Focus Areas: Governance, Vendor Management, Resident Coordination
-</p>
-</div>
-
-<div class="info-box">
-<div style="height:180px;background:#e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#6b7280;font-weight:600;">
-MC Member Photo
-</div>
-
-<h3>Priya Menon</h3>
-
-<p>
-Vice President<br>
-Block: Mayfair<br>
-Focus Areas: Cultural Activities, Volunteer Coordination
-</p>
-</div>
-
-<div class="info-box">
-<div style="height:180px;background:#e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#6b7280;font-weight:600;">
-MC Member Photo
-</div>
-
-<h3>Arun Kumar</h3>
-
-<p>
-Treasurer<br>
-Block: Boston<br>
-Focus Areas: Finance, Budget Planning, Audit Support
-</p>
-</div>
-
-<div class="info-box">
-<div style="height:180px;background:#e5e7eb;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#6b7280;font-weight:600;">
-MC Member Photo
-</div>
-
-<h3>Deepa Krishnan</h3>
-
-<p>
-Secretary<br>
-Block: Primrose<br>
-Focus Areas: Resident Communication, Documentation, Compliance
-</p>
-</div>
-
-</div>
-
-</div>
-
+  <!-- ── TOPBAR ──────────────────────────── -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="name">🌊 SJR BLUEWATERS</div>
+      <div class="loc">Parappana Agrahara, Bangalore</div>
+    </div>
+    <div class="topbar-right">
+      <div class="supabase-indicator loading" id="dbStatus">⏳ Connecting…</div>
+      <button class="btn btn-dark" onclick="openAdmin()">⚙ Admin</button>
+    </div>
+  </div>
+
+  <!-- ── MAIN NAV ────────────────────────── -->
+  <div class="main-nav">
+    <button class="nav-tab active" id="tab-home"       onclick="showPage('home')"><span class="nic">🏡</span> Home</button>
+    <button class="nav-tab"        id="tab-sops"       onclick="showPage('sops')"><span class="nic">📋</span> SOPs</button>
+    <button class="nav-tab"        id="tab-mc"         onclick="showPage('mc')"><span class="nic">👥</span> MC Members</button>
+    <button class="nav-tab"        id="tab-committees" onclick="showPage('committees')"><span class="nic">🤝</span> Committees</button>
+    <button class="nav-tab"        id="tab-emergency"  onclick="showPage('emergency')"><span class="nic">🚨</span> Emergency</button>
+    <button class="nav-tab"        id="tab-helpers"    onclick="showPage('helpers')"><span class="nic">🩺</span> Community Helpers</button>
+    <button class="nav-tab"        id="tab-amenities"  onclick="showPage('amenities')"><span class="nic">🏊</span> Amenities</button>
+    <button class="nav-tab"        id="tab-events"     onclick="showPage('events')"><span class="nic">🎉</span> Events</button>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       HOME PAGE
+  ════════════════════════════════════════ -->
+  <div class="page active" id="page-home">
+
+    <!-- Hero -->
+    <div class="home-hero">
+      <div class="welcome">Welcome to</div>
+      <h1>SJR Bluewaters</h1>
+      <div class="tagline">Community Portal · Parappana Agrahara, Bangalore</div>
+      <div class="desc">Your one-stop portal for SOPs, emergency contacts, committee updates, events, community helpers and society amenities. Everything your community needs, in one place.</div>
+      <div class="home-stats">
+        <div class="stat-chip"><div class="sv">12</div><div class="sl">Blocks</div></div>
+        <div class="stat-chip"><div class="sv" id="home-sop-count">—</div><div class="sl">SOPs</div></div>
+        <div class="stat-chip"><div class="sv">4</div><div class="sl">MC Members</div></div>
+        <div class="stat-chip"><div class="sv">4</div><div class="sl">Committees</div></div>
+      </div>
+    </div>
+
+    <!-- Quick access tiles -->
+    <div class="quick-tiles">
+      <div class="qtile" style="background:#eff6ff;border-color:#dbeafe;" onclick="showPage('sops')">
+        <div class="qi">📋</div><div class="ql" style="color:#1d4ed8;">SOPs</div>
+      </div>
+      <div class="qtile" style="background:#fff7ed;border-color:#fed7aa;" onclick="showPage('emergency')">
+        <div class="qi">🚨</div><div class="ql" style="color:#c2410c;">Emergency</div>
+      </div>
+      <div class="qtile" style="background:#faf5ff;border-color:#e9d5ff;" onclick="showPage('events')">
+        <div class="qi">🎉</div><div class="ql" style="color:#7e22ce;">Events</div>
+      </div>
+      <div class="qtile" style="background:#f0fdf4;border-color:#bbf7d0;" onclick="showPage('helpers')">
+        <div class="qi">🩺</div><div class="ql" style="color:#15803d;">Helpers</div>
+      </div>
+      <div class="qtile" style="background:#ecfeff;border-color:#a5f3fc;" onclick="showPage('amenities')">
+        <div class="qi">🏊</div><div class="ql" style="color:#0e7490;">Amenities</div>
+      </div>
+      <div class="qtile" style="background:#f0f9ff;border-color:#bae6fd;" onclick="showPage('mc')">
+        <div class="qi">👥</div><div class="ql" style="color:#0369a1;">MC</div>
+      </div>
+      <div class="qtile" style="background:#f8fafc;border-color:#e2e8f0;" onclick="showPage('committees')">
+        <div class="qi">🤝</div><div class="ql" style="color:#475569;">Committees</div>
+      </div>
+      <div class="qtile" style="background:#fefce8;border-color:#fde68a;" onclick="openAdmin()">
+        <div class="qi">⚙️</div><div class="ql" style="color:#92400e;">Admin</div>
+      </div>
+    </div>
+
+    <!-- Home grid: left=announcements+SOPs, right=blocks+events -->
+    <div class="home-grid">
+      <div>
+        <!-- Announcements -->
+        <div class="card">
+          <h2>📢 Announcements <span class="pill pill-orange" style="margin-left:4px">2 New</span></h2>
+          <div class="ann-row">
+            <div class="ann-dot"></div>
+            <div>
+              <div class="ann-text">Water supply shutdown on May 12, 6AM–2PM for maintenance work</div>
+              <div class="ann-meta">Today &nbsp;·&nbsp; <span class="pill pill-blue">Maintenance</span></div>
+            </div>
+          </div>
+          <div class="ann-row">
+            <div class="ann-dot"></div>
+            <div>
+              <div class="ann-text">Annual General Meeting scheduled — May 18 at Clubhouse, 6PM</div>
+              <div class="ann-meta">2 days ago &nbsp;·&nbsp; <span class="pill pill-teal">Meeting</span></div>
+            </div>
+          </div>
+          <div class="ann-row">
+            <div class="ann-dot" style="background:#6b7280"></div>
+            <div>
+              <div class="ann-text">New Swimming Pool SOP published — please read before using the pool</div>
+              <div class="ann-meta">4 days ago &nbsp;·&nbsp; <span class="pill pill-green">SOP</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent SOPs -->
+        <div class="card">
+          <h2>📋 SOP Library <button class="btn btn-sm" onclick="showPage('sops')" style="margin-left:auto;font-size:11px;padding:5px 12px;">View All →</button></h2>
+          <div id="home-sop-list">
+            <div class="sop-loading">Loading SOPs…</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- Events -->
+        <div class="card">
+          <h2>🎉 Upcoming Events</h2>
+          <div class="card-row">
+            <div>
+              <h4>Children's Festival</h4>
+              <p>May 18 · Clubhouse Lawn · Meera Iyer</p>
+            </div>
+            <button class="btn btn-sm">RSVP</button>
+          </div>
+          <div class="card-row">
+            <div>
+              <h4>Weekend Yoga</h4>
+              <p>Every Saturday · Garden Area · Vivek Kumar</p>
+            </div>
+            <button class="btn btn-sm">RSVP</button>
+          </div>
+          <div class="card-row">
+            <div>
+              <h4>AGM 2025</h4>
+              <p>May 18 · Clubhouse · All residents</p>
+            </div>
+            <button class="btn btn-sm">RSVP</button>
+          </div>
+        </div>
+
+        <!-- Blocks -->
+        <div class="card">
+          <h2>🏢 Community Blocks</h2>
+          <div class="blocks-wrap">
+            <span class="block-chip">Alston</span><span class="block-chip">Boston</span><span class="block-chip">Clarence</span>
+            <span class="block-chip">Crescent</span><span class="block-chip">Greenwich</span><span class="block-chip">Goldcoast</span>
+            <span class="block-chip">Hamstead A</span><span class="block-chip">Hamstead B</span><span class="block-chip">Hamstead AB</span>
+            <span class="block-chip">Kensington</span><span class="block-chip">Mayfair</span><span class="block-chip">Primrose</span>
+          </div>
+        </div>
+
+        <!-- Emergency quick card -->
+        <div class="card" style="background:linear-gradient(135deg,#fff1f2,#fff5f5);">
+          <h2>🚨 Emergency Numbers</h2>
+          <div class="card-row"><div><h4>Police</h4><p>Dial 100</p></div></div>
+          <div class="card-row"><div><h4>Ambulance</h4><p>Dial 108</p></div></div>
+          <div class="card-row"><div><h4>Fire</h4><p>Dial 101</p></div></div>
+          <div class="card-row"><div><h4>Security Gate</h4><p>+91 98440 00001</p></div></div>
+          <button class="btn" style="width:100%;margin-top:12px;background:#dc2626;" onclick="showPage('emergency')">View All Emergency Contacts →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SOPs PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-sops">
+    <div class="section-title">📋 SOP Library</div>
+    <div class="section-sub">Tap any SOP to read it on screen — no downloads needed</div>
+
+    <!-- Supabase config banner (shown only when not configured) -->
+    <div class="config-banner" id="configBanner">
+      <h3>🔗 Connect to Supabase to enable live SOP management</h3>
+      <p>Once connected, admins can upload PDFs or write SOPs — they appear here instantly with no HTML edits needed. Create a free project at <code>supabase.com</code>, then enter your credentials below.</p>
+      <div class="config-fields">
+        <input type="text" id="cfgUrl"  placeholder="Supabase Project URL  (https://xxx.supabase.co)" />
+        <input type="text" id="cfgKey"  placeholder="Supabase anon/public key" />
+        <button onclick="saveSupabaseConfig()">Connect</button>
+      </div>
+    </div>
+
+    <div class="sop-toolbar">
+      <input class="search-box" type="text" id="sopSearch" placeholder="🔍  Search SOPs…" oninput="renderSOPs()">
+      <button class="btn btn-sm" onclick="loadSOPs()">↻ Refresh</button>
+    </div>
+    <div class="filter-row" id="catFilters">
+      <button class="fbtn active" data-cat="All" onclick="setCat(this)">All</button>
+      <button class="fbtn" data-cat="Security" onclick="setCat(this)">Security</button>
+      <button class="fbtn" data-cat="Parking" onclick="setCat(this)">Parking</button>
+      <button class="fbtn" data-cat="Amenities" onclick="setCat(this)">Amenities</button>
+      <button class="fbtn" data-cat="General" onclick="setCat(this)">General</button>
+      <button class="fbtn" data-cat="Housekeeping" onclick="setCat(this)">Housekeeping</button>
+      <button class="fbtn" data-cat="Admin" onclick="setCat(this)">Admin</button>
+    </div>
+    <div class="sop-list" id="sopListContainer">
+      <div class="sop-loading">⏳ Loading SOPs…</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       MC MEMBERS PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-mc">
+    <div class="section-title">👥 Managing Committee</div>
+    <div class="section-sub">Your elected committee for 2024–25</div>
+    <div class="mc-grid">
+      <div class="mc-card"><div class="mc-photo">👨‍💼</div><div class="mc-name">Rajesh Nair</div><div class="mc-role">President</div><div class="mc-block">Block: Kensington</div><div class="mc-focus">Governance, Vendor Management, Resident Coordination</div></div>
+      <div class="mc-card"><div class="mc-photo">👩‍💼</div><div class="mc-name">Priya Menon</div><div class="mc-role">Vice President</div><div class="mc-block">Block: Mayfair</div><div class="mc-focus">Cultural Activities, Volunteer Coordination</div></div>
+      <div class="mc-card"><div class="mc-photo">👨‍💼</div><div class="mc-name">Arun Kumar</div><div class="mc-role">Treasurer</div><div class="mc-block">Block: Boston</div><div class="mc-focus">Finance, Budget Planning, Audit Support</div></div>
+      <div class="mc-card"><div class="mc-photo">👩‍💼</div><div class="mc-name">Deepa Krishnan</div><div class="mc-role">Secretary</div><div class="mc-block">Block: Primrose</div><div class="mc-focus">Resident Communication, Documentation, Compliance</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       COMMITTEES PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-committees">
+    <div class="section-title">🤝 Community Subcommittees</div>
+    <div class="section-sub">Volunteer-led groups driving SJR Bluewaters forward</div>
+    <div class="committee-card"><h3>🌱 Green Committee</h3><p>Volunteers: Arun Nair, Priya Menon, Karthik S</p><div class="join-tag">Interested to join? → greencommittee@sjrbw.org</div></div>
+    <div class="committee-card"><h3>♻️ Waste Management</h3><p>Volunteers: Sneha Rao, Vivek Kumar</p><div class="join-tag">Interested to join? → waste@sjrbw.org</div></div>
+    <div class="committee-card"><h3>🎭 Cultural Committee</h3><p>Volunteers: Meera Iyer, Pooja Sharma</p><div class="join-tag">Interested to join? → cultural@sjrbw.org</div></div>
+    <div class="committee-card"><h3>⚖️ Legal Committee</h3><p>Volunteers: Rajiv Menon, Deepa Krishnan</p><div class="join-tag">Interested to join? → legal@sjrbw.org</div></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       EMERGENCY PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-emergency">
+    <div class="section-title">🚨 Emergency Contacts</div>
+    <div class="section-sub">Quick access when it matters most</div>
+    <div class="emergency-alert">
+      <p>🆘 In a life-threatening emergency call 112 immediately</p>
+      <button>📞 CALL 112 NOW</button>
+    </div>
+    <div class="panel-grid">
+      <div class="info-box">
+        <h3>🚔 National Emergency</h3>
+        <p>Police: 100<br>Ambulance: 108<br>Fire: 101<br>Women Helpline: 1091<br>Disaster Mgmt: 1078</p>
+      </div>
+      <div class="info-box">
+        <h3>🏥 Nearby Hospitals</h3>
+        <p>Narayana Health: +91 9876543210<br>Sparsh Hospital: +91 9988776655<br>Apollo Clinic: +91 9123456780<br>Columbia Asia: +91 80 7100 0000</p>
+      </div>
+      <div class="info-box">
+        <h3>🏢 Society Contacts</h3>
+        <p>Security Gate: +91 98440 00001<br>Society Manager: +91 98440 00002<br>Maintenance: +91 98440 00003<br>MC President: +91 98440 00004</p>
+      </div>
+      <div class="info-box">
+        <h3>⚡ Utility Helplines</h3>
+        <p>BESCOM (Electricity): 1912<br>BWSSB (Water): 1916<br>Gas Leak (IGL): 1906<br>Pest Control: +91 98440 00005</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       COMMUNITY HELPERS PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-helpers">
+    <div class="section-title">🩺 Community Helper Directory</div>
+    <div class="section-sub">Trusted services and specialists recommended by residents</div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('ortho')">🦴 Ortho / Spine Specialists <span class="plus-icon" id="pi-ortho">+</span></div><div class="expand-content" id="ortho">Dr. Ramesh Ortho Clinic — +91 9988123412<br>Dr. Spine Care Center — +91 9845123412<br>Advanced Spine Institute — +91 9876501122</div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('ent')">👂 ENT Specialists <span class="plus-icon" id="pi-ent">+</span></div><div class="expand-content" id="ent">Dr. Mehta ENT Care — +91 9845012345<br>Sound & Hearing Clinic — +91 9988771122</div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('car')">🚗 Car Service Centers <span class="plus-icon" id="pi-car">+</span></div><div class="expand-content" id="car">Bluewheel Auto Garage — +91 9876500011<br>QuickFix Car Care — +91 9988112299</div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('bike')">🏍️ Bike Repair Centers <span class="plus-icon" id="pi-bike">+</span></div><div class="expand-content" id="bike">MotoFast Repairs — +91 9888776655<br>2Wheel Experts — +91 9123456777</div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('plumb')">🔧 Plumbers & Electricians <span class="plus-icon" id="pi-plumb">+</span></div><div class="expand-content" id="plumb">Ravi Plumbing Works — +91 9912345678<br>BrightFix Electricals — +91 9988001122</div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('tutor')">📚 Home Tutors <span class="plus-icon" id="pi-tutor">+</span></div><div class="expand-content" id="tutor">Maths & Science: Kavitha — +91 9845001234<br>English & Hindi: Ramesh — +91 9876500234</div></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       AMENITIES PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-amenities">
+    <div class="section-title">🏊 Society Amenities</div>
+    <div class="section-sub">Facilities available to all SJR Bluewaters residents</div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('apool')">🏊 Swimming Pool <span class="plus-icon" id="pi-apool">+</span></div><div class="expand-content" id="apool">Large family swimming pool with separate kids' section and deck seating. Open daily 6–9 AM and 4–8 PM. Closed Tuesdays for cleaning.<div class="amenity-img-placeholder"><span>📷</span>Upload Pool Photo</div></div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('aclub')">🏢 Clubhouse <span class="plus-icon" id="pi-aclub">+</span></div><div class="expand-content" id="aclub">Multi-purpose clubhouse for events, meetings and indoor activities. Capacity: 150. Book via Management Office 5 days in advance.<div class="amenity-img-placeholder"><span>📷</span>Upload Clubhouse Photo</div></div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('agym')">🏋️ Gymnasium <span class="plus-icon" id="pi-agym">+</span></div><div class="expand-content" id="agym">Fully equipped fitness center with cardio and strength training equipment. Open 5 AM – 10 PM daily.<div class="amenity-img-placeholder"><span>📷</span>Upload Gym Photo</div></div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('acourt')">🏸 Badminton Courts <span class="plus-icon" id="pi-acourt">+</span></div><div class="expand-content" id="acourt">Two indoor badminton courts. Booking available via Management Office. Rackets and shuttlecocks available on loan.<div class="amenity-img-placeholder"><span>📷</span>Upload Court Photo</div></div></div>
+    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('agarden')">🌳 Garden & Walking Track <span class="plus-icon" id="pi-agarden">+</span></div><div class="expand-content" id="agarden">Landscaped garden with a 400m walking/jogging track. Open to residents and their guests all day.<div class="amenity-img-placeholder"><span>📷</span>Upload Garden Photo</div></div></div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       EVENTS PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-events">
+    <div class="section-title">🎉 Events & Activities</div>
+    <div class="section-sub">What's happening at SJR Bluewaters</div>
+    <div class="panel-grid">
+      <div class="info-box"><h3>🎉 Children's Day Festival</h3><p>Date: May 18<br>Venue: Clubhouse Lawn<br>Time: 4:00 PM<br>Coordinator: Meera Iyer<br>Open to all children and families</p></div>
+      <div class="info-box"><h3>🧘 Weekend Yoga</h3><p>Every Saturday<br>Garden Area<br>Time: 6:30 AM<br>Coordinator: Vivek Kumar<br>All skill levels welcome</p></div>
+      <div class="info-box"><h3>🏛️ Annual General Meeting</h3><p>Date: May 18<br>Venue: Clubhouse<br>Time: 6:00 PM<br>All residents invited<br>MC elections & budget review</p></div>
+      <div class="info-box"><h3>📚 Book Club</h3><p>Date: May 25<br>Venue: Library Room<br>Time: 5:00 PM<br>6 spots available<br>Contact: Priya — +91 98440 00006</p></div>
+    </div>
+  </div>
+
+</div><!-- end portal -->
+
+<!-- ════════════════════════════════════
+     SOP VIEWER MODAL
+════════════════════════════════════ -->
 <div id="sopModal">
-
-
-<div class="modal">
-
-<div class="modal-header">
-
-<h3>📋 SOP Viewer</h3>
-
-<button class="btn" style="background:#ef4444;" onclick="closeSOP()">
-Close
-</button>
-
+  <div class="sop-modal-box">
+    <div class="sop-modal-header">
+      <div class="sop-modal-title" id="sopModalTitle">SOP Title</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" id="sopDownloadBtn" style="display:none">⬇ Download</button>
+        <button class="btn btn-sm btn-red" onclick="closeSOP()">✕ Close</button>
+      </div>
+    </div>
+    <div class="sop-modal-meta" id="sopModalMeta"></div>
+    <div class="sop-modal-body" id="sopModalBody"></div>
+  </div>
 </div>
 
-<iframe id="sopFrame"></iframe>
+<!-- ════════════════════════════════════
+     ADMIN MODAL
+════════════════════════════════════ -->
+<div id="adminModal">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2>⚙️ Admin Panel — SJR Bluewaters</h2>
+      <button class="btn btn-sm" onclick="closeAdmin()" style="background:#374151;">✕ Close</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="atab active" onclick="showATab('aDash',this)">Dashboard</button>
+      <button class="atab" onclick="showATab('aSOPs',this)">SOPs</button>
+      <button class="atab" onclick="showATab('aAnn',this)">Announcements</button>
+      <button class="atab" onclick="showATab('aEvents',this)">Events</button>
+      <button class="atab" onclick="showATab('aDB',this)">Database</button>
+    </div>
+    <div class="admin-body">
 
-</div>
+      <!-- DASHBOARD -->
+      <div class="asection active" id="aDash">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div style="background:#0369a1;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">📋</div><div style="font-size:22px;font-weight:800;" id="dash-sop-count">—</div><div style="font-size:10px;opacity:.8;">SOPs Published</div></div>
+          <div style="background:#059669;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">🔗</div><div style="font-size:14px;font-weight:700;" id="dash-db-status">Not connected</div><div style="font-size:10px;opacity:.8;">Supabase Status</div></div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e5e7eb;">
+          <strong style="font-size:12px;color:#374151;display:block;margin-bottom:10px;">⚡ Quick Actions</strong>
+          <button class="btn" style="width:100%;margin-bottom:8px;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aSOPs',null)">📋 Upload / Add SOP</button>
+          <button class="btn" style="width:100%;margin-bottom:8px;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aAnn',null)">📢 Post Announcement</button>
+          <button class="btn" style="width:100%;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aDB',null)">🔗 Configure Supabase</button>
+        </div>
+      </div>
 
-</div>
+      <!-- SOPs ADMIN -->
+      <div class="asection" id="aSOPs">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <strong style="font-size:14px;color:#1e3a5f;">📋 Manage SOPs</strong>
+          <button class="btn btn-sm" onclick="document.getElementById('newSopForm').style.display='block'">+ Add SOP</button>
+        </div>
+
+        <div id="newSopForm" style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:14px;">
+          <span class="form-label">Add New SOP</span>
+          <input class="form-input" id="sopTitle" placeholder="SOP Title  (e.g. Visitor Entry Rules)" />
+          <div class="form-row">
+            <input class="form-input" id="sopIcon" placeholder="Icon emoji  e.g. 🛡️" style="margin-bottom:0;" />
+            <select class="form-select" id="sopCategory" style="margin-bottom:0;">
+              <option>Security</option><option>Parking</option><option>Amenities</option>
+              <option>General</option><option>Admin</option><option>Housekeeping</option>
+            </select>
+          </div>
+          <div style="height:10px;"></div>
+
+          <!-- Text vs File tabs -->
+          <div class="content-tabs">
+            <button class="ctab active" id="ctab-text" onclick="switchCtab('text')">✏️ Write Text</button>
+            <button class="ctab" id="ctab-file" onclick="switchCtab('file')">📎 Upload PDF / Doc</button>
+          </div>
+
+          <div id="ctab-text-panel">
+            <textarea class="form-textarea" id="sopContent" style="min-height:100px" placeholder="Write the SOP content here…"></textarea>
+          </div>
+
+          <div id="ctab-file-panel" style="display:none;">
+            <div class="upload-zone" onclick="document.getElementById('sopFile').click()">
+              <input type="file" id="sopFile" accept=".pdf,.doc,.docx,.txt" onchange="handleFile(event)">
+              <div class="uz-icon">📎</div>
+              <p>Tap to upload PDF or Word document</p>
+              <span>Supported: PDF, DOC, DOCX, TXT · Max 20MB</span>
+            </div>
+            <div class="file-preview" id="filePreview">
+              <span id="fileIcon" style="font-size:22px;">📄</span>
+              <span class="file-preview-name" id="fileName">—</span>
+              <button onclick="clearFile()" style="font-size:11px;color:#ef4444;font-weight:700;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;">✕</button>
+            </div>
+          </div>
+
+          <button class="form-submit" onclick="publishSOP()">🚀 Publish SOP</button>
+          <div id="sopPublishMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <span class="form-label">Published SOPs</span>
+        <div id="admin-sop-list"><div style="font-size:12px;color:#94a3b8;padding:8px;">Loading…</div></div>
+      </div>
+
+      <!-- ANNOUNCEMENTS ADMIN -->
+      <div class="asection" id="aAnn">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <strong style="font-size:14px;color:#1e3a5f;">📢 Post Announcement</strong>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:14px;">
+          <span class="form-label">Compose</span>
+          <input class="form-input" id="annTitle" placeholder="Title" />
+          <textarea class="form-textarea" id="annBody" placeholder="Message for all residents…"></textarea>
+          <div style="display:flex;gap:8px;">
+            <select class="form-select" id="annTarget" style="flex:1;margin-bottom:0;"><option>All Residents</option><option>Block A</option><option>Block B</option><option>Block C</option></select>
+            <button class="btn" onclick="postAnnouncement()" style="flex-shrink:0;">Publish</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTS ADMIN -->
+      <div class="asection" id="aEvents">
+        <strong style="font-size:14px;color:#1e3a5f;display:block;margin-bottom:14px;">🎉 Create Event</strong>
+        <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;">
+          <span class="form-label">Event Details</span>
+          <input class="form-input" placeholder="Event Name" />
+          <div class="form-row"><input class="form-input" type="date" style="margin-bottom:0;" /><input class="form-input" type="time" style="margin-bottom:0;" /></div>
+          <div style="height:10px;"></div>
+          <input class="form-input" placeholder="Venue (e.g. Clubhouse)" />
+          <input class="form-input" placeholder="Coordinator Name" />
+          <input class="form-input" type="number" placeholder="Max Participants (optional)" />
+          <button class="form-submit">Publish Event</button>
+        </div>
+      </div>
+
+      <!-- DATABASE CONFIG -->
+      <div class="asection" id="aDB">
+        <strong style="font-size:14px;color:#1e3a5f;display:block;margin-bottom:6px;">🔗 Supabase Configuration</strong>
+        <p style="font-size:12px;color:#64748b;margin-bottom:16px;line-height:1.7;">Connect a free Supabase database so SOPs uploaded by the Admin appear instantly on the portal for all residents — no HTML edits, no file changes needed.</p>
+
+        <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:14px;">
+          <span class="form-label">Step 1 — Create free project at supabase.com</span>
+          <span class="form-label" style="margin-top:4px;">Step 2 — Run this SQL in your Supabase SQL editor:</span>
+          <div style="background:#1e293b;color:#a5f3fc;border-radius:10px;padding:14px;font-family:monospace;font-size:11px;line-height:1.8;margin-bottom:14px;overflow-x:auto;white-space:pre;">CREATE TABLE sops (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  title text NOT NULL,
+  category text,
+  icon text DEFAULT '📋',
+  content text,
+  file_url text,
+  file_name text,
+  content_type text DEFAULT 'text',
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE sops ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read" ON sops FOR SELECT USING (true);
+CREATE POLICY "Auth insert" ON sops FOR INSERT WITH CHECK (true);</div>
+          <span class="form-label">Step 3 — Enter your credentials:</span>
+          <input class="form-input" id="dbUrl" placeholder="Project URL  (https://xxxx.supabase.co)" />
+          <input class="form-input" id="dbKey" placeholder="anon / public API key" />
+          <button class="form-submit" onclick="saveSupabaseConfig()">💾 Save & Connect</button>
+          <div id="dbSaveMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;">
+          <strong style="font-size:12px;color:#15803d;display:block;margin-bottom:4px;">✅ What this unlocks</strong>
+          <ul style="font-size:12px;color:#166534;line-height:1.9;padding-left:16px;">
+            <li>Admin uploads SOP (PDF/text) → instantly live for all residents</li>
+            <li>Zero HTML edits, zero file management</li>
+            <li>SOPs survive page refreshes and work for everyone</li>
+            <li>Free up to 500MB storage on Supabase</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- end admin modal -->
 
 <script>
+// ════════════════════════════════════════════
+// CONFIG & STATE
+// ════════════════════════════════════════════
+let SUPABASE_URL = localStorage.getItem('sbUrl') || '';
+let SUPABASE_KEY = localStorage.getItem('sbKey') || '';
+let activeCat = 'All';
+let allSOPs = [];   // [{id,title,category,icon,content,file_url,file_name,content_type,created_at}]
+let currentFile = null;
 
-function openSOP(url){
+// ── Built-in seed SOPs (shown when no Supabase) ──────────────────────
+const SEED_SOPS = [
+  {id:'s1',title:'Visitor Entry & Gate Pass',category:'Security',icon:'🛡️',content_type:'text',created_at:'2025-05-01',
+   content:`<h3>Purpose</h3><p>Ensure all visitors are properly verified before entering SJR Bluewaters.</p><h3>Procedure</h3><ul><li>All visitors must report to the main security gate.</li><li>Provide a valid government-issued ID (Aadhaar, PAN, Passport or Driving Licence).</li><li>Security will call the resident to confirm the visit before issuing a gate pass.</li><li>Gate pass must be displayed at all times.</li></ul><h3>Delivery Personnel</h3><ul><li>Not permitted beyond the lobby without resident escort.</li><li>Food delivery, couriers and home service workers wait at the visitor bay.</li></ul><div class="note">⚠️ Unauthorised entry will be escalated to society management and police if required.</div>`},
+  {id:'s2',title:'Visitor Parking Rules',category:'Parking',icon:'🚗',content_type:'text',created_at:'2025-05-04',
+   content:`<h3>Visitor Parking Zones</h3><p>Yellow-marked bays near Gate 1 and Gate 2. Resident bays are strictly for flat owners and tenants.</p><h3>Rules</h3><ul><li>Maximum 4 hours without prior notice.</li><li>Extended parking requires written approval from the Society Manager.</li><li>Visitor pass must be displayed on the dashboard.</li><li>No parking in fire lanes, near transformers, or blocking other vehicles.</li></ul><div class="note">📞 Parking disputes: Maintenance +91 98440 00003</div>`},
+  {id:'s3',title:'Swimming Pool Usage',category:'Amenities',icon:'🏊',content_type:'text',created_at:'2025-04-20',
+   content:`<h3>Pool Timings</h3><ul><li>Adults: 6:00 AM–9:00 AM and 4:00 PM–8:00 PM</li><li>Children (under 12): 4:00 PM–6:00 PM with adult</li><li>Closed Tuesdays for cleaning</li></ul><h3>Rules</h3><ul><li>Proper swimwear mandatory — no regular clothes or shorts.</li><li>Shower before entering.</li><li>Children under 6 must wear floaties and be supervised.</li><li>No food or glass near pool. No running or diving from edges.</li></ul><div class="note">🏊 Pool capacity: 20 persons at a time.</div>`},
+  {id:'s4',title:'Garbage Segregation & Disposal',category:'Housekeeping',icon:'♻️',content_type:'text',created_at:'2025-04-28',
+   content:`<h3>Segregation at Source</h3><ul><li>🟢 <strong>Green Bin:</strong> Wet/Organic — food waste, peels, cooked leftovers</li><li>🔵 <strong>Blue Bin:</strong> Dry/Recyclable — paper, cardboard, plastic, glass, metal</li><li>🔴 <strong>Red Bin:</strong> Hazardous — diapers, medical waste, broken glass, e-waste</li></ul><h3>Timings</h3><ul><li>Housekeeping collects 7:00 AM–9:00 AM daily. Keep bins outside door by 7 AM.</li></ul><div class="note">♻️ Unsegregated waste will not be collected. Please cooperate!</div>`},
+  {id:'s5',title:'Pet Policy & Guidelines',category:'General',icon:'🐾',content_type:'text',created_at:'2025-04-15',
+   content:`<h3>Registration</h3><p>All pets must be registered with the Management Office — submit a photo, vaccination certificate and owner details within 30 days.</p><h3>Rules</h3><ul><li>Pets on leash at all times in common areas.</li><li>Not permitted in pool, children's play area or gym.</li><li>Owners must clean up immediately after their pets.</li><li>Vaccinations must be kept up to date.</li></ul><div class="note">🐾 Unregistered pets or repeated violations will attract a formal notice.</div>`},
+  {id:'s6',title:'Move-In / Move-Out Process',category:'Admin',icon:'📦',content_type:'text',created_at:'2025-04-10',
+   content:`<h3>Move-In</h3><ul><li>Inform Management at least 72 hours in advance.</li><li>Permitted only 8:00 AM–6:00 PM on weekdays and Saturdays. Not on Sundays or public holidays.</li><li>Book service lift in advance. Pad lift before use.</li><li>Submit tenant KYC (Aadhaar + rental agreement) within 7 days.</li></ul><h3>Move-Out</h3><ul><li>Request NOC from Society Management 7 days before.</li><li>Clear all dues before NOC is issued.</li></ul><div class="note">📞 Contact Society Manager: +91 98440 00002</div>`},
+];
 
-document.getElementById('sopModal').style.display='flex';
-document.getElementById('sopFrame').src=url;
-
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const t = document.getElementById('tab-' + id);
+  if(t) t.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id === 'sops') loadSOPs();
 }
 
-function closeSOP(){
-
-document.getElementById('sopModal').style.display='none';
-document.getElementById('sopFrame').src='';
-
+// ════════════════════════════════════════════
+// SUPABASE
+// ════════════════════════════════════════════
+function saveSupabaseConfig() {
+  const url = (document.getElementById('cfgUrl') || document.getElementById('dbUrl')).value.trim();
+  const key = (document.getElementById('cfgKey') || document.getElementById('dbKey')).value.trim();
+  if(!url || !key) { alert('Please enter both URL and key.'); return; }
+  SUPABASE_URL = url; SUPABASE_KEY = key;
+  localStorage.setItem('sbUrl', url); localStorage.setItem('sbKey', key);
+  const msg = document.getElementById('dbSaveMsg');
+  if(msg){ msg.style.display='block'; msg.style.color='#15803d'; msg.textContent='✅ Config saved! Loading SOPs…'; }
+  document.getElementById('configBanner').style.display = 'none';
+  loadSOPs();
+  updateDBStatus();
 }
 
-function togglePanel(panelId){
+function updateDBStatus() {
+  const el = document.getElementById('dbStatus');
+  const da = document.getElementById('dash-db-status');
+  if(SUPABASE_URL && SUPABASE_KEY) {
+    el.textContent = '🟢 Supabase Live'; el.className='supabase-indicator';
+    if(da) da.textContent = 'Connected ✓';
+  } else {
+    el.textContent = '⚡ Demo Mode'; el.className='supabase-indicator loading';
+    if(da) da.textContent = 'Not connected';
+  }
+}
 
-const panels = document.querySelectorAll('.panel');
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation', ...opts.headers },
+    ...opts
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
-panels.forEach(panel=>{
-panel.classList.remove('active');
+// ════════════════════════════════════════════
+// LOAD SOPs
+// ════════════════════════════════════════════
+async function loadSOPs() {
+  const container = document.getElementById('sopListContainer');
+  const homeList = document.getElementById('home-sop-list');
+  container.innerHTML = '<div class="sop-loading">⏳ Loading SOPs…</div>';
+
+  try {
+    if(SUPABASE_URL && SUPABASE_KEY) {
+      const data = await sbFetch('sops?select=*&order=created_at.desc');
+      allSOPs = [...SEED_SOPS, ...data];
+    } else {
+      allSOPs = SEED_SOPS;
+    }
+    // Update counts
+    document.getElementById('home-sop-count').textContent = allSOPs.length;
+    document.getElementById('dash-sop-count').textContent = allSOPs.length;
+    renderSOPs();
+    renderAdminSOPList();
+    renderHomeSOPs(homeList);
+  } catch(e) {
+    allSOPs = SEED_SOPS;
+    renderSOPs();
+    renderHomeSOPs(homeList);
+    container.innerHTML += '<div style="font-size:11px;color:#f97316;padding:8px;">⚠️ Could not reach Supabase — showing local SOPs only.</div>';
+  }
+}
+
+function renderHomeSOPs(el) {
+  if(!el) return;
+  const items = allSOPs.slice(0,3);
+  el.innerHTML = items.map(s => `
+    <div class="card-row" style="cursor:pointer;" onclick="openSOP('${s.id}')">
+      <div><h4>${s.icon||'📋'} ${s.title}</h4><p>${s.category} ${s.file_name?'· 📎 PDF':''}</p></div>
+      <button class="btn btn-sm" onclick="event.stopPropagation();openSOP('${s.id}')">View</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════
+// RENDER SOP LIST
+// ════════════════════════════════════════════
+function renderSOPs() {
+  const q = (document.getElementById('sopSearch').value || '').toLowerCase();
+  const filtered = allSOPs.filter(s =>
+    (activeCat === 'All' || s.category === activeCat) &&
+    (s.title.toLowerCase().includes(q) || (s.category||'').toLowerCase().includes(q))
+  );
+  const container = document.getElementById('sopListContainer');
+  if(!filtered.length) {
+    container.innerHTML = `<div class="sop-empty"><div class="ei">📋</div><p>No SOPs found</p><p style="font-size:12px;">Try a different search or ask Admin to publish SOPs.</p></div>`;
+    return;
+  }
+  const catColors = {Security:'pill-blue',Parking:'pill-blue',Amenities:'pill-teal',General:'pill-orange',Housekeeping:'pill-green',Admin:'pill-teal'};
+  container.innerHTML = filtered.map(s => `
+    <div class="sop-card" onclick="openSOP('${s.id}')">
+      <div class="sop-ico">${s.icon||'📋'}</div>
+      <div class="sop-info">
+        <div class="sop-title">${s.title}${s.content_type==='pdf'||s.file_url?` <span style="font-size:10px;background:#ccfbf1;color:#0f766e;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:6px;">📎 PDF</span>`:''}
+        </div>
+        <div class="sop-meta-row">
+          <span class="pill ${catColors[s.category]||'pill-blue'}">${s.category||'General'}</span>
+          <span class="sop-updated">Added ${formatDate(s.created_at)}</span>
+        </div>
+      </div>
+      <div class="sop-chevron">›</div>
+    </div>`).join('');
+}
+
+function setCat(btn) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat = btn.dataset.cat;
+  renderSOPs();
+}
+
+function formatDate(d) {
+  if(!d) return '';
+  try { return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}); } catch{ return d; }
+}
+
+// ════════════════════════════════════════════
+// SOP VIEWER MODAL
+// ════════════════════════════════════════════
+function openSOP(id) {
+  const sop = allSOPs.find(s => s.id == id);
+  if(!sop) return;
+  document.getElementById('sopModalTitle').textContent = (sop.icon||'📋') + '  ' + sop.title;
+  const catColors = {Security:'pill-blue',Parking:'pill-blue',Amenities:'pill-teal',General:'pill-orange',Housekeeping:'pill-green',Admin:'pill-teal'};
+  document.getElementById('sopModalMeta').innerHTML = `<span class="pill ${catColors[sop.category]||'pill-blue'}">${sop.category||'General'}</span><span style="font-size:11px;color:#9ca3af;margin-left:10px;">Added ${formatDate(sop.created_at)}</span>`;
+  const body = document.getElementById('sopModalBody');
+  const dlBtn = document.getElementById('sopDownloadBtn');
+  if(sop.content_type === 'pdf' && sop.file_url) {
+    body.innerHTML = `<iframe class="sop-pdf-frame" src="${sop.file_url}" title="${sop.title}"></iframe>`;
+    body.style.padding = '0'; dlBtn.style.display='block'; dlBtn.onclick = ()=>window.open(sop.file_url,'_blank');
+  } else if(sop.content_type === 'text' && sop.content) {
+    body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
+  } else if(sop.content) {
+    body.innerHTML = '<pre style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:#374151;">'+sop.content+'</pre>';
+    body.style.padding='28px 30px'; dlBtn.style.display='none';
+  } else {
+    body.innerHTML = `<div class="sop-empty"><div class="ei">📄</div><p>${sop.file_name||'No preview available'}</p></div>`;
+    body.style.padding='28px 30px'; dlBtn.style.display='none';
+  }
+  document.getElementById('sopModal').classList.add('open');
+}
+
+function closeSOP() {
+  document.getElementById('sopModal').classList.remove('open');
+  document.getElementById('sopModalBody').innerHTML = '';
+}
+document.getElementById('sopModal').addEventListener('click', e => {
+  if(e.target === document.getElementById('sopModal')) closeSOP();
 });
 
-document.getElementById(panelId).classList.add('active');
-
-window.scrollTo({
-top:document.body.scrollHeight,
-behavior:'smooth'
+// ════════════════════════════════════════════
+// ADMIN MODAL
+// ════════════════════════════════════════════
+function openAdmin() { document.getElementById('adminModal').classList.add('open'); }
+function closeAdmin() { document.getElementById('adminModal').classList.remove('open'); }
+document.getElementById('adminModal').addEventListener('click', e => {
+  if(e.target === document.getElementById('adminModal')) closeAdmin();
 });
-
+function showATab(id, btn) {
+  document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.atab').forEach(t => { if(t.textContent.trim().startsWith(id.replace('a',''))) t.classList.add('active'); });
 }
 
-function toggleExpand(id){
-
-document.getElementById(id).classList.toggle('active');
-
+// ── Content tab switcher ──────────────────────────────────────────
+function switchCtab(tab) {
+  ['text','file'].forEach(t => {
+    document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('ctab-'+t+'-panel').style.display = t===tab ? 'block' : 'none';
+  });
+  currentFile = null;
 }
 
+// ── File upload ───────────────────────────────────────────────────
+function handleFile(e) {
+  currentFile = e.target.files[0];
+  if(!currentFile) return;
+  document.getElementById('filePreview').style.display = 'flex';
+  document.getElementById('fileIcon').textContent = currentFile.type==='application/pdf' ? '📄' : '📝';
+  document.getElementById('fileName').textContent = currentFile.name;
+}
+function clearFile() {
+  currentFile = null;
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('sopFile').value = '';
+}
+
+// ── Publish SOP ───────────────────────────────────────────────────
+async function publishSOP() {
+  const title = document.getElementById('sopTitle').value.trim();
+  const icon  = document.getElementById('sopIcon').value.trim() || '📋';
+  const cat   = document.getElementById('sopCategory').value;
+  const isFile= document.getElementById('ctab-file').classList.contains('active');
+  const msg   = document.getElementById('sopPublishMsg');
+  msg.style.display = 'block';
+
+  if(!title){ msg.style.color='#dc2626'; msg.textContent='⚠️ Please enter a title.'; return; }
+
+  const today = new Date().toISOString();
+  const newId = 'local_' + Date.now();
+
+  if(isFile && currentFile) {
+    msg.style.color='#0369a1'; msg.textContent='⏳ Processing file…';
+
+    if(SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        // Upload to Supabase Storage
+        const filePath = `sops/${Date.now()}_${currentFile.name}`;
+        const upRes = await fetch(`${SUPABASE_URL}/storage/v1/object/sops-bucket/${filePath}`, {
+          method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':currentFile.type}, body:currentFile
+        });
+        const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/sops-bucket/${filePath}`;
+        const isPdf = currentFile.type === 'application/pdf';
+        const rec = await sbFetch('sops', { method:'POST', body: JSON.stringify({title,icon,category:cat,content_type:isPdf?'pdf':'other',file_url:fileUrl,file_name:currentFile.name,created_at:today}) });
+        const newSop = Array.isArray(rec)?rec[0]:rec;
+        allSOPs.unshift(newSop);
+        msg.style.color='#15803d'; msg.textContent='✅ SOP published to Supabase and live for all residents!';
+      } catch(e) {
+        // Fallback: store file locally in memory (base64 for PDF preview)
+        await addLocalFileSOP(title, icon, cat, today, newId, msg);
+      }
+    } else {
+      await addLocalFileSOP(title, icon, cat, today, newId, msg);
+    }
+  } else {
+    const content = document.getElementById('sopContent').value.trim();
+    if(!content){ msg.style.color='#dc2626'; msg.textContent='⚠️ Please write the SOP content.'; return; }
+    const formattedContent = content.split('\n').filter(l=>l.trim()).map(l=>`<p>${l}</p>`).join('');
+    const newSop = {id:newId,title,icon,category:cat,content_type:'text',content:formattedContent,created_at:today};
+
+    if(SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        const rec = await sbFetch('sops', {method:'POST', body:JSON.stringify({title,icon,category:cat,content_type:'text',content:formattedContent,created_at:today})});
+        allSOPs.unshift(Array.isArray(rec)?rec[0]:rec);
+        msg.style.color='#15803d'; msg.textContent='✅ SOP published to Supabase!';
+      } catch(e) {
+        allSOPs.unshift(newSop);
+        msg.style.color='#f97316'; msg.textContent='⚠️ Saved locally (Supabase error). Residents on this device can see it.';
+      }
+    } else {
+      allSOPs.unshift(newSop);
+      msg.style.color='#0369a1'; msg.textContent='✅ SOP added (local mode). Connect Supabase to share with all residents.';
+    }
+  }
+
+  renderSOPs(); renderAdminSOPList();
+  document.getElementById('home-sop-count').textContent = allSOPs.length;
+  document.getElementById('dash-sop-count').textContent = allSOPs.length;
+  // Reset form
+  document.getElementById('sopTitle').value=''; document.getElementById('sopIcon').value='';
+  document.getElementById('sopContent').value=''; clearFile();
+}
+
+async function addLocalFileSOP(title, icon, cat, today, newId, msg) {
+  const isPdf = currentFile.type === 'application/pdf';
+  const reader = new FileReader();
+  return new Promise(resolve => {
+    reader.onload = ev => {
+      const newSop = {id:newId,title,icon,category:cat,content_type:isPdf?'pdf':'other',file_url:isPdf?ev.target.result:null,file_name:currentFile.name,created_at:today};
+      allSOPs.unshift(newSop);
+      msg.style.color='#0369a1'; msg.textContent=`✅ ${isPdf?'PDF will render in viewer':'File added'}. Connect Supabase to share with all residents.`;
+      resolve();
+    };
+    reader.readAsDataURL(currentFile);
+  });
+}
+
+function renderAdminSOPList() {
+  const el = document.getElementById('admin-sop-list');
+  if(!el) return;
+  el.innerHTML = allSOPs.map(s => `
+    <div class="alist-item">
+      <span class="alist-name">${s.icon||'📋'} ${s.title} <span class="pill pill-blue" style="margin-left:4px;">${s.category}</span></span>
+      <div class="alist-actions">
+        <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
+        <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
+      </div>
+    </div>`).join('');
+}
+
+async function archiveSOP(id, btn) {
+  if(!confirm('Remove this SOP from the portal?')) return;
+  if(SUPABASE_URL && SUPABASE_KEY && !id.startsWith('local_') && !id.startsWith('s')) {
+    try { await sbFetch(`sops?id=eq.${id}`,{method:'DELETE'}); } catch(e){}
+  }
+  allSOPs = allSOPs.filter(s=>s.id!=id);
+  renderSOPs(); renderAdminSOPList();
+  document.getElementById('home-sop-count').textContent = allSOPs.length;
+  document.getElementById('dash-sop-count').textContent = allSOPs.length;
+}
+
+function postAnnouncement() {
+  const t=document.getElementById('annTitle').value.trim();
+  if(!t){ alert('Please enter a title.'); return; }
+  alert('✅ Announcement "'+t+'" published! (Connect Supabase for persistence across all devices.)');
+  document.getElementById('annTitle').value=''; document.getElementById('annBody').value='';
+}
+
+// ── Expand / collapse ─────────────────────────────────────────────
+function toggleExpand(id) {
+  const el = document.getElementById(id);
+  const pi = document.getElementById('pi-'+id);
+  el.classList.toggle('open');
+  if(pi) pi.classList.toggle('open');
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+(function init(){
+  // Restore config
+  if(SUPABASE_URL && SUPABASE_KEY) {
+    document.getElementById('configBanner').style.display = 'none';
+    const du = document.getElementById('dbUrl'), dk = document.getElementById('dbKey');
+    if(du) du.value = SUPABASE_URL; if(dk) dk.value = SUPABASE_KEY;
+  }
+  updateDBStatus();
+  loadSOPs();
+})();
 </script>
-
 </body>
 </html>
