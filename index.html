@@ -773,12 +773,12 @@ function showPage(id) {
 // ════════════════════════════════════════════
 function saveSupabaseConfig() {
   const urlField =
-    document.getElementById('dbUrl') ||
-    document.getElementById('cfgUrl');
+    document.getElementById('cfgUrl') ||
+    document.getElementById('dbUrl');
 
   const keyField =
-    document.getElementById('dbKey') ||
-    document.getElementById('cfgKey');
+    document.getElementById('cfgKey') ||
+    document.getElementById('dbKey');
 
   const url = urlField ? urlField.value.trim() : '';
   const key = keyField ? keyField.value.trim() : '';
