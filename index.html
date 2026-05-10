@@ -752,16 +752,14 @@ function showPage(id) {
 // SUPABASE
 // ════════════════════════════════════════════
 function saveSupabaseConfig() {
-  const urlField =
-    document.getElementById('cfgUrl') ||
-    document.getElementById('dbUrl');
+  // Pick whichever field actually has a value filled in
+  const cfgUrl = document.getElementById('cfgUrl');
+  const dbUrl  = document.getElementById('dbUrl');
+  const cfgKey = document.getElementById('cfgKey');
+  const dbKey  = document.getElementById('dbKey');
 
-  const keyField =
-    document.getElementById('cfgKey') ||
-    document.getElementById('dbKey');
-
-  const url = urlField ? urlField.value.trim() : '';
-  const key = keyField ? keyField.value.trim() : '';
+  const url = (cfgUrl && cfgUrl.value.trim()) || (dbUrl && dbUrl.value.trim()) || '';
+  const key = (cfgKey && cfgKey.value.trim()) || (dbKey && dbKey.value.trim()) || '';
 
   if (!url || !key) {
     alert('Please enter both URL and key.');
@@ -1282,7 +1280,9 @@ openAdmin = function(){
   if(SUPABASE_URL && SUPABASE_KEY) {
     document.getElementById('configBanner').style.display = 'none';
     const du = document.getElementById('dbUrl'), dk = document.getElementById('dbKey');
+    const cu = document.getElementById('cfgUrl'), ck = document.getElementById('cfgKey');
     if(du) du.value = SUPABASE_URL; if(dk) dk.value = SUPABASE_KEY;
+    if(cu) cu.value = SUPABASE_URL; if(ck) ck.value = SUPABASE_KEY;
   }
   updateDBStatus();
   checkExistingSession();
