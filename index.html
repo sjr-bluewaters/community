@@ -719,7 +719,10 @@ body{
 
       <!-- DATABASE CONFIG -->
       <div class="asection" id="aDB">
-        <strong style="font-size:14px;color:#1e3a5f;display:block;margin-bottom:6px;">🔗 Supabase Configuration</strong>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <strong style="font-size:14px;color:#1e3a5f;">🔗 Supabase Configuration</strong>
+          <span id="dbConnectionStatus" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:#fef9c3;color:#92400e;border:1px solid #fde68a;">⚡ Not connected</span>
+        </div>
         <p style="font-size:12px;color:#64748b;margin-bottom:16px;line-height:1.7;">Connect a free Supabase database so SOPs uploaded by the Admin appear instantly on the portal for all residents — no HTML edits, no file changes needed.</p>
 
         <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:14px;">
@@ -842,6 +845,7 @@ function saveSupabaseConfig() {
     msg.style.color = '#15803d';
     msg.textContent = '✅ Connected successfully to Supabase! Loading SOPs…';
   }
+  updateDBConnectionStatus();
 
   const banner = document.getElementById('configBanner');
 
@@ -850,8 +854,29 @@ function saveSupabaseConfig() {
   }
 
   updateDBStatus();
+  updateDBConnectionStatus();
   checkExistingSession();
   loadSOPs();
+}
+
+function updateDBConnectionStatus() {
+  // Refresh in-memory vars from localStorage
+  if(!SUPABASE_URL) SUPABASE_URL = localStorage.getItem('sbUrl') || '';
+  if(!SUPABASE_KEY) SUPABASE_KEY = localStorage.getItem('sbKey') || '';
+
+  const badge = document.getElementById('dbConnectionStatus');
+  const loginMsg = document.getElementById('loginMsg');
+  if(badge) {
+    if(SUPABASE_URL && SUPABASE_KEY) {
+      badge.style.background = '#f0fdf4'; badge.style.color = '#15803d'; badge.style.borderColor = '#bbf7d0';
+      badge.textContent = '🟢 Connected';
+    } else {
+      badge.style.background = '#fef9c3'; badge.style.color = '#92400e'; badge.style.borderColor = '#fde68a';
+      badge.textContent = '⚡ Not connected';
+    }
+  }
+  // Clear the "connect first" login error if now connected
+  if(loginMsg && SUPABASE_URL && SUPABASE_KEY) loginMsg.style.display = 'none';
 }
 
 function updateDBStatus() {
@@ -1089,6 +1114,10 @@ document.getElementById('sopModal').addEventListener('click', e => {
 // ════════════════════════════════════════════
 function openAdmin(){
   document.getElementById('adminModal').classList.add('open');
+  // Always refresh connection status when panel opens
+  if(!SUPABASE_URL) SUPABASE_URL = localStorage.getItem('sbUrl') || '';
+  if(!SUPABASE_KEY) SUPABASE_KEY = localStorage.getItem('sbKey') || '';
+  updateDBConnectionStatus();
   if(isAdminLoggedIn){
     document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
     document.getElementById('aDash').classList.add('active');
@@ -1259,10 +1288,14 @@ async function loginAdmin() {
   const password = document.getElementById('adminPassword').value.trim();
   const msg = document.getElementById('loginMsg');
 
+  // Re-read from localStorage in case they were saved after page load
+  if(!SUPABASE_URL) SUPABASE_URL = localStorage.getItem('sbUrl') || '';
+  if(!SUPABASE_KEY) SUPABASE_KEY = localStorage.getItem('sbKey') || '';
+
   if(!SUPABASE_URL || !SUPABASE_KEY){
     msg.style.display='block';
     msg.style.color='#dc2626';
-    msg.textContent='Please connect Supabase first in the Database tab.';
+    msg.textContent='Please set your Supabase URL and key in the Database tab first.';
     return;
   }
 
@@ -1372,6 +1405,7 @@ async function checkExistingSession(){
     document.getElementById('configBanner').style.display = 'none';
   }
   updateDBStatus();
+  updateDBConnectionStatus();
   checkExistingSession();
   loadSOPs();
 })();
