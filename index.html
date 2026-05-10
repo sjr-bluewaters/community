@@ -545,42 +545,41 @@ body{
     <div class="sop-modal-body" id="sopModalBody"></div>
 
     <!-- Feedback -->
-    <div id="sopFeedbackSection" style="border-top:1px solid #e5e7eb;padding:18px 20px;background:#f9fafb;">
-      <div id="sopFeedbackForm">
-        <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:10px;">💬 Share your feedback on this SOP</div>
-
+    <div id="sopFeedbackSection" style="border-top:1px solid #e5e7eb;background:#f9fafb;">
+      <!-- Collapsed toggle bar -->
+      <div onclick="toggleFeedbackForm()" style="padding:12px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+        <span style="font-size:13px;font-weight:600;color:#1e3a5f;">💬 Share feedback on this SOP</span>
+        <span id="fbToggleIcon" style="font-size:11px;color:#6b7280;background:#e5e7eb;padding:3px 10px;border-radius:99px;">▼ Expand</span>
+      </div>
+      <div id="sopFeedbackForm" style="display:none;padding:0 20px 16px;">
         <textarea id="fbComment" placeholder="Your comment or suggestion…"
           style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;resize:vertical;min-height:72px;font-family:inherit;margin-bottom:8px;"></textarea>
-        <div id="fbIdentityFields" style="display:none;">
-          <select id="fbBlock"
-            style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;margin-bottom:8px;background:#fff;">
+        <div id="fbIdentityFields">
+          <select id="fbBlock" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;margin-bottom:8px;background:#fff;">
             <option value="">Select Block *</option>
-          <option value="Alston">Alston</option>
-          <option value="Boston">Boston</option>
-          <option value="Clarence">Clarence</option>
-          <option value="Crescent">Crescent</option>
-          <option value="Greenwich">Greenwich</option>
-          <option value="Goldcoast">Goldcoast</option>
-          <option value="Hamstead A">Hamstead A</option>
-          <option value="Hamstead B">Hamstead B</option>
-          <option value="Hamstead AB">Hamstead AB</option>
-          <option value="Kensington">Kensington</option>
-          <option value="Mayfair">Mayfair</option>
-          <option value="Primrose">Primrose</option>
+            <option value="Alston">Alston</option>
+            <option value="Boston">Boston</option>
+            <option value="Clarence">Clarence</option>
+            <option value="Crescent">Crescent</option>
+            <option value="Greenwich">Greenwich</option>
+            <option value="Goldcoast">Goldcoast</option>
+            <option value="Hamstead A">Hamstead A</option>
+            <option value="Hamstead B">Hamstead B</option>
+            <option value="Hamstead AB">Hamstead AB</option>
+            <option value="Kensington">Kensington</option>
+            <option value="Mayfair">Mayfair</option>
+            <option value="Primrose">Primrose</option>
           </select>
           <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <input id="fbName" placeholder="Your Name *"
-              style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
-            <input id="fbFlat" placeholder="Flat No. *"
-              style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
+            <input id="fbName" placeholder="Your Name *" style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
+            <input id="fbFlat" placeholder="Flat No. *" style="flex:1;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;" />
           </div>
         </div>
-        <button onclick="submitFeedback()"
-          style="width:100%;padding:10px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Submit Feedback</button>
+        <button onclick="submitFeedback()" style="width:100%;padding:10px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Submit Feedback</button>
         <div id="fbMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
       </div>
-      <div id="sopFeedbackDone" style="display:none;text-align:center;padding:10px 0;">
-        <div style="font-size:22px;margin-bottom:4px;">✅</div>
+      <div id="sopFeedbackDone" style="display:none;text-align:center;padding:14px 20px;">
+        <div style="font-size:20px;margin-bottom:4px;">✅</div>
         <div style="font-size:13px;color:#15803d;font-weight:600;">Thanks for your feedback!</div>
       </div>
     </div>
@@ -1433,21 +1432,36 @@ let currentFeedbackSopId = null;
 let currentFeedbackSopTitle = null;
 let currentFeedbackThumb = null;
 
+function toggleFeedbackForm() {
+  const form = document.getElementById('sopFeedbackForm');
+  const icon = document.getElementById('fbToggleIcon');
+  const done = document.getElementById('sopFeedbackDone');
+  if(done.style.display !== 'none') return; // already submitted
+  const open = form.style.display !== 'none';
+  form.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '▼ Expand' : '▲ Close';
+}
+
 function initFeedback(sopId, sopTitle) {
   currentFeedbackSopId = sopId;
   currentFeedbackSopTitle = sopTitle;
+  // Reset toggle to collapsed
+  const form = document.getElementById('sopFeedbackForm');
+  const icon = document.getElementById('fbToggleIcon');
+  if(form) { form.style.display = 'none'; }
+  if(icon) { icon.textContent = '▼ Expand'; }
 
   document.getElementById('fbComment').value = '';
   document.getElementById('fbFlat').value = '';
   document.getElementById('fbName').value = '';
   document.getElementById('fbBlock').value = '';
-  document.getElementById('fbIdentityFields').style.display = 'block';
+  // identity fields always visible
   document.getElementById('fbMsg').style.display = 'none';
   document.getElementById('sopFeedbackForm').style.display = 'block';
   document.getElementById('sopFeedbackDone').style.display = 'none';
 
   // Show identity fields immediately
-  document.getElementById('fbIdentityFields').style.display = 'block';
+  // identity fields always visible
 
 
 }
@@ -1474,8 +1488,10 @@ async function submitFeedback() {
     return;
   }
 
+  // Only use sop_id if it's a real UUID (not a local seed ID)
+  const isRealUuid = currentFeedbackSopId && /^[0-9a-f-]{36}$/.test(currentFeedbackSopId);
   const payload = {
-    sop_id: currentFeedbackSopId || null,
+    sop_id: isRealUuid ? currentFeedbackSopId : null,
     sop_title: currentFeedbackSopTitle,
     comment: comment,
     block: block || null,
