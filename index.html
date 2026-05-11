@@ -1604,8 +1604,8 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
       <button onclick="downloadFeedbackCSV()" style="padding:7px 14px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Download Excel</button>
     </div>
     <div id="fbSummaryView">
-      ${Object.entries(byTitle).map(([title, fbItems]) => `
-        <div onclick="showFeedbackDetail('${title.replace(/'/g,"\'")}',fbAllItems)" 
+      ${Object.entries(byTitle).map(([title, fbItems], idx) => `
+        <div onclick="showFeedbackDetail(${idx})" 
           style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:3px;">${title}</div>
@@ -1624,10 +1624,13 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
 
   // Store items globally for the detail view
   window.fbAllItems = items;
+  window.fbByTitleKeys = Object.keys(byTitle);
+  window.fbByTitle = byTitle;
 }
 
-function showFeedbackDetail(title, allItems) {
-  const fbItems = allItems.filter(i => (i.sop_title || 'Unknown SOP') === title);
+function showFeedbackDetail(idx) {
+  const title = window.fbByTitleKeys[idx];
+  const fbItems = window.fbByTitle[title] || [];
   document.getElementById('fbSummaryView').style.display = 'none';
   document.getElementById('fbDetailView').style.display = 'block';
   document.getElementById('fbDetailContent').innerHTML = `
@@ -1659,7 +1662,7 @@ function downloadFeedbackCSV() {
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = 'SOP_Feedback_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
-
+}
 
 </script>
 </body>
