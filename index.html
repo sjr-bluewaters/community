@@ -1587,41 +1587,78 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
     return;
   }
 
-  // Summary counts
-  const ups = items.filter(i => i.thumb === 'up').length;
-  const downs = items.filter(i => i.thumb === 'down').length;
+  // Group by SOP title
+  const byTitle = {};
+  items.forEach(i => {
+    const title = i.sop_title || 'Unknown SOP';
+    if(!byTitle[title]) byTitle[title] = [];
+    byTitle[title].push(i);
+  });
 
-  el.innerHTML = `
-    <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center;">
-        <div style="font-size:22px;">👍</div>
-        <div style="font-size:20px;font-weight:700;color:#15803d;">${ups}</div>
-        <div style="font-size:11px;color:#16a34a;">Helpful</div>
-      </div>
-      <div style="flex:1;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;text-align:center;">
-        <div style="font-size:22px;">👎</div>
-        <div style="font-size:20px;font-weight:700;color:#dc2626;">${downs}</div>
-        <div style="font-size:11px;color:#ef4444;">Needs Work</div>
-      </div>
-      <div style="flex:1;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px;text-align:center;">
-        <div style="font-size:22px;">💬</div>
-        <div style="font-size:20px;font-weight:700;color:#0369a1;">${items.filter(i=>i.comment).length}</div>
-        <div style="font-size:11px;color:#0284c7;">Comments</div>
-      </div>
+  // Build category summary and detail view
+  const totalComments = items.filter(i => i.comment).length;
+
+  let html = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:13px;color:#6b7280;">${items.length} response${items.length!==1?'s':''} across ${Object.keys(byTitle).length} SOP${Object.keys(byTitle).length!==1?'s':''}</div>
+      <button onclick="downloadFeedbackCSV()" style="padding:7px 14px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Download Excel</button>
     </div>
-    ${items.map(i => `
+    <div id="fbSummaryView">
+      ${Object.entries(byTitle).map(([title, fbItems]) => `
+        <div onclick="showFeedbackDetail('${title.replace(/'/g,"\'")}',fbAllItems)" 
+          style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:3px;">${title}</div>
+            <div style="font-size:11px;color:#6b7280;">${fbItems.length} comment${fbItems.length!==1?'s':''}</div>
+          </div>
+          <div style="font-size:18px;color:#6b7280;">›</div>
+        </div>`).join('')}
+    </div>
+    <div id="fbDetailView" style="display:none;">
+      <button onclick="document.getElementById('fbSummaryView').style.display='block';document.getElementById('fbDetailView').style.display='none';"
+        style="margin-bottom:12px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;">← Back</button>
+      <div id="fbDetailContent"></div>
+    </div>`;
+
+  el.innerHTML = html;
+
+  // Store items globally for the detail view
+  window.fbAllItems = items;
+}
+
+function showFeedbackDetail(title, allItems) {
+  const fbItems = allItems.filter(i => (i.sop_title || 'Unknown SOP') === title);
+  document.getElementById('fbSummaryView').style.display = 'none';
+  document.getElementById('fbDetailView').style.display = 'block';
+  document.getElementById('fbDetailContent').innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:12px;">${title}</div>
+    ${fbItems.map(i => `
       <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <span style="font-size:12px;font-weight:600;color:#1e3a5f;">${i.sop_title || 'Unknown SOP'}</span>
-          <span style="font-size:16px;">💬</span>
-        </div>
-        ${i.comment ? `<div style="font-size:12px;color:#374151;margin-bottom:6px;">"${i.comment}"</div>` : ''}
+        <div style="font-size:12px;color:#374151;margin-bottom:6px;">"${i.comment || '—'}"</div>
         <div style="font-size:11px;color:#9ca3af;">
           ${[i.block, i.member_name, i.flat_no ? 'Flat '+i.flat_no : ''].filter(Boolean).join(' · ')}
-          ${(i.block||i.member_name||i.flat_no) ? ' · ' : ''}${new Date(i.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+          · ${new Date(i.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
         </div>
       </div>`).join('')}`;
 }
+
+function downloadFeedbackCSV() {
+  const items = window.fbAllItems || [];
+  if(!items.length) return;
+  const headers = ['SOP Title','Comment','Block','Name','Flat No','Date'];
+  const rows = items.map(i => [
+    i.sop_title || '',
+    (i.comment || '').replace(/,/g,'；'),
+    i.block || '',
+    i.member_name || '',
+    i.flat_no || '',
+    new Date(i.created_at).toLocaleDateString('en-IN')
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'SOP_Feedback_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
 
 
 </script>
