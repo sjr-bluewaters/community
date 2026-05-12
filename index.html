@@ -417,12 +417,14 @@ body{
     </div>
     <div class="filter-row" id="catFilters">
       <button class="fbtn active" data-cat="All" onclick="setCat(this)">All</button>
-      <button class="fbtn" data-cat="Security" onclick="setCat(this)">Security</button>
-      <button class="fbtn" data-cat="Parking" onclick="setCat(this)">Parking</button>
-      <button class="fbtn" data-cat="Amenities" onclick="setCat(this)">Amenities</button>
-      <button class="fbtn" data-cat="General" onclick="setCat(this)">General</button>
-      <button class="fbtn" data-cat="Housekeeping" onclick="setCat(this)">Housekeeping</button>
-      <button class="fbtn" data-cat="Admin" onclick="setCat(this)">Admin</button>
+      <button class="fbtn" data-cat="Security & Safety" onclick="setCat(this)">Security & Safety</button>
+      <button class="fbtn" data-cat="Governance & Elections" onclick="setCat(this)">Governance & Elections</button>
+      <button class="fbtn" data-cat="Vendor & Staff Management" onclick="setCat(this)">Vendor & Staff Management</button>
+      <button class="fbtn" data-cat="Amenities & Facility Usage" onclick="setCat(this)">Amenities & Facility Usage</button>
+      <button class="fbtn" data-cat="Community Conduct & Welfare" onclick="setCat(this)">Community Conduct & Welfare</button>
+      <button class="fbtn" data-cat="Pets, Animals & Environment" onclick="setCat(this)">Pets, Animals & Environment</button>
+      <button class="fbtn" data-cat="Resident Services & Operations" onclick="setCat(this)">Resident Services & Operations</button>
+      <button class="fbtn" data-cat="Finance, Audit & Compliance" onclick="setCat(this)">Finance, Audit & Compliance</button>
     </div>
     <div class="sop-list" id="sopListContainer">
       <div class="sop-loading">⏳ Loading SOPs…</div>
@@ -675,8 +677,14 @@ body{
           <div class="form-row">
             <input class="form-input" id="sopIcon" placeholder="Icon emoji  e.g. 🛡️" style="margin-bottom:0;" />
             <select class="form-select" id="sopCategory" style="margin-bottom:0;">
-              <option>Security</option><option>Parking</option><option>Amenities</option>
-              <option>General</option><option>Admin</option><option>Housekeeping</option>
+              <option value="Security & Safety">Security & Safety</option>
+              <option value="Governance & Elections">Governance & Elections</option>
+              <option value="Vendor & Staff Management">Vendor & Staff Management</option>
+              <option value="Amenities & Facility Usage">Amenities & Facility Usage</option>
+              <option value="Community Conduct & Welfare">Community Conduct & Welfare</option>
+              <option value="Pets, Animals & Environment">Pets, Animals & Environment</option>
+              <option value="Resident Services & Operations">Resident Services & Operations</option>
+              <option value="Finance, Audit & Compliance">Finance, Audit & Compliance</option>
             </select>
           </div>
           <div style="height:10px;"></div>
@@ -1079,7 +1087,7 @@ function renderSOPs() {
     container.innerHTML = `<div class="sop-empty"><div class="ei">📋</div><p>No SOPs found</p><p style="font-size:12px;">Try a different search or ask Admin to publish SOPs.</p></div>`;
     return;
   }
-  const catColors = {Security:'pill-blue',Parking:'pill-blue',Amenities:'pill-teal',General:'pill-orange',Housekeeping:'pill-green',Admin:'pill-teal'};
+  const catColors = {'Security & Safety':'pill-blue','Governance & Elections':'pill-teal','Vendor & Staff Management':'pill-orange','Amenities & Facility Usage':'pill-green','Community Conduct & Welfare':'pill-blue','Pets, Animals & Environment':'pill-green','Resident Services & Operations':'pill-teal','Finance, Audit & Compliance':'pill-orange'};
   container.innerHTML = filtered.map(s => `
     <div class="sop-card" onclick="openSOP('${s.id}')">
       <div class="sop-ico">${s.icon||'📋'}</div>
@@ -1114,7 +1122,7 @@ function openSOP(id) {
   const sop = allSOPs.find(s => s.id == id);
   if(!sop) return;
   document.getElementById('sopModalTitle').textContent = (sop.icon||'📋') + '  ' + sop.title;
-  const catColors = {Security:'pill-blue',Parking:'pill-blue',Amenities:'pill-teal',General:'pill-orange',Housekeeping:'pill-green',Admin:'pill-teal'};
+  const catColors = {'Security & Safety':'pill-blue','Governance & Elections':'pill-teal','Vendor & Staff Management':'pill-orange','Amenities & Facility Usage':'pill-green','Community Conduct & Welfare':'pill-blue','Pets, Animals & Environment':'pill-green','Resident Services & Operations':'pill-teal','Finance, Audit & Compliance':'pill-orange'};
   document.getElementById('sopModalMeta').innerHTML = `<span class="pill ${catColors[sop.category]||'pill-blue'}">${sop.category||'General'}</span><span style="font-size:11px;color:#9ca3af;margin-left:10px;">Added ${formatDate(sop.created_at)}</span>`;
   const body = document.getElementById('sopModalBody');
   const dlBtn = document.getElementById('sopDownloadBtn');
