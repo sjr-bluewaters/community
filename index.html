@@ -57,9 +57,11 @@ body{
 .welcome-sub{font-size:12px;color:#bae6fd;}
 .welcome-wave{font-size:48px;opacity:.22;line-height:1;flex-shrink:0;}
 .home-stats-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
-.stats-bar-chip{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:11px 16px;text-align:center;flex:1;min-width:70px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
-.stats-bar-chip .sv{font-size:20px;font-weight:800;color:#1e3a5f;}
-.stats-bar-chip .sl{font-size:10px;color:#6b7280;margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.stats-bar-chip{border-radius:16px;padding:18px 12px;text-align:center;flex:1;min-width:80px;box-shadow:0 4px 15px rgba(0,0,0,.12);transition:transform .2s,box-shadow .2s;cursor:pointer;color:#fff;position:relative;overflow:hidden;}
+.stats-bar-chip:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.18);}
+.stats-bar-chip::after{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1);}
+.stats-bar-chip .sv{font-size:28px;font-weight:900;line-height:1;}
+.stats-bar-chip .sl{font-size:10px;margin-top:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.85;}
 
 .home-grid{display:grid;grid-template-columns:1.3fr 0.7fr;gap:20px;}
 @media(max-width:900px){.home-grid{grid-template-columns:1fr;}}
@@ -85,7 +87,7 @@ body{
 .pill-red{background:#fee2e2;color:#b91c1c;}
 
 /* Quick tiles */
-.quick-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.quick-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;margin-top:0;}
 @media(max-width:700px){.quick-tiles{grid-template-columns:repeat(4,1fr);}}
 .qtile{border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;border:1px solid transparent;transition:transform .15s,box-shadow .15s;}
 .qtile:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.09);}
@@ -136,7 +138,7 @@ body{
 /* ── ADMIN MODAL ────────────────────────── */
 #adminModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;justify-content:center;align-items:flex-start;padding:20px;overflow-y:auto;}
 #adminModal.open{display:flex;}
-.admin-box{width:100%;max-width:700px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
+.admin-box{width:100%;max-width:1000px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
 .admin-header{background:#111827;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;}
 .admin-header h2{color:#fff;font-size:16px;font-weight:700;}
 .admin-tabs{display:flex;background:#1f2937;padding:0 16px;gap:2px;}
@@ -242,20 +244,13 @@ body{
 <div class="portal">
 
   <!-- ── TOPBAR ──────────────────────────── -->
-  <div class="topbar">
-    <div class="topbar-brand">
-      <div class="name">🌊 SJR BLUEWATERS</div>
-      <div class="loc">Parappana Agrahara, Bangalore</div>
-    </div>
-    <div class="topbar-right">
-      <div class="supabase-indicator" id="dbStatus" style="display:none;"></div>
-      <button class="btn btn-dark" id="adminAccessBtn" onclick="openAdmin()">🔐 Admin Login</button>
-<button class="btn btn-red" id="logoutBtn" onclick="logoutAdmin()" style="display:none;">Logout</button>
-    </div>
+  <!-- Hidden elements still needed by JS -->
+  <div style="display:none;">
+    <div id="dbStatus"></div>
   </div>
 
   <!-- ── MAIN NAV ────────────────────────── -->
-  <div class="main-nav">
+  <div class="main-nav" style="display:none;">
     <button class="nav-tab active" id="tab-home"       onclick="showPage('home')"><span class="nic">🏡</span> Home</button>
     <button class="nav-tab"        id="tab-sops"       onclick="showPage('sops')"><span class="nic">📋</span> SOPs</button>
     <button class="nav-tab"        id="tab-mc"         onclick="showPage('mc')"><span class="nic">👥</span> MC Members</button>
@@ -271,20 +266,48 @@ body{
   ════════════════════════════════════════ -->
   <div class="page active" id="page-home">
 
-    <!-- Slim welcome banner -->
-    <div class="home-welcome-slim">
+    <!-- Welcome banner with admin controls -->
+    <div class="home-welcome-slim" style="border-radius:0;">
       <div class="home-welcome-text">
         <div class="welcome-label">Welcome to</div>
         <div class="welcome-title">SJR Bluewaters</div>
-        <div class="welcome-sub">Community Portal · Parappana Agrahara, Bangalore</div>
+        <div class="welcome-sub">Your one-stop portal for SOPs, emergency contacts, events &amp; community services</div>
       </div>
-      <div class="welcome-wave">🌊</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+        <button id="backHomeBtn" onclick="showPage('home')" style="display:none;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);font-size:12px;font-weight:600;color:#fff;cursor:pointer;">← Home</button>
+        <div id="dbStatus" style="display:none;"></div>
+        <button class="btn btn-dark" id="adminAccessBtn" onclick="openAdmin()" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;">🔐 Admin Login</button>
+        <button id="logoutBtn" onclick="logoutAdmin()" style="display:none;padding:8px 16px;background:rgba(220,38,38,.8);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;">Logout</button>
+      </div>
     </div>
 
     <!-- Quick access tiles -->
+    <!-- Stats bar: Blocks, SOPs, MC Members, Committees — clickable -->
+    <div class="home-stats-bar">
+      <div class="stats-bar-chip" onclick="showPage('mc')" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);">
+        <div class="sv">12</div><div class="sl">Blocks</div>
+      </div>
+      <div class="stats-bar-chip" onclick="showPage('sops')" style="background:linear-gradient(135deg,#059669,#34d399);">
+        <div class="sv" id="home-sop-count">—</div><div class="sl">SOPs</div>
+      </div>
+      <div class="stats-bar-chip" onclick="showPage('mc')" style="background:linear-gradient(135deg,#7e22ce,#a855f7);">
+        <div class="sv">4</div><div class="sl">MC Members</div>
+      </div>
+      <div class="stats-bar-chip" onclick="showPage('committees')" style="background:linear-gradient(135deg,#ea580c,#fb923c);">
+        <div class="sv">4</div><div class="sl">Committees</div>
+      </div>
+    </div>
+
+    <!-- Quick tiles -->
     <div class="quick-tiles">
       <div class="qtile" style="background:#eff6ff;border-color:#dbeafe;" onclick="showPage('sops')">
         <div class="qi">📋</div><div class="ql" style="color:#1d4ed8;">SOPs</div>
+      </div>
+      <div class="qtile" style="background:#f0f9ff;border-color:#bae6fd;" onclick="showPage('mc')">
+        <div class="qi">👥</div><div class="ql" style="color:#0369a1;">MC Members</div>
+      </div>
+      <div class="qtile" style="background:#f8fafc;border-color:#e2e8f0;" onclick="showPage('committees')">
+        <div class="qi">🤝</div><div class="ql" style="color:#475569;">Committees</div>
       </div>
       <div class="qtile" style="background:#fff7ed;border-color:#fed7aa;" onclick="showPage('emergency')">
         <div class="qi">🚨</div><div class="ql" style="color:#c2410c;">Emergency</div>
@@ -293,35 +316,10 @@ body{
         <div class="qi">🎉</div><div class="ql" style="color:#7e22ce;">Events</div>
       </div>
       <div class="qtile" style="background:#f0fdf4;border-color:#bbf7d0;" onclick="showPage('helpers')">
-        <div class="qi">🩺</div><div class="ql" style="color:#15803d;">Helpers</div>
+        <div class="qi">🩺</div><div class="ql" style="color:#15803d;">Community Helpers</div>
       </div>
       <div class="qtile" style="background:#ecfeff;border-color:#a5f3fc;" onclick="showPage('amenities')">
         <div class="qi">🏊</div><div class="ql" style="color:#0e7490;">Amenities</div>
-      </div>
-      <div class="qtile" style="background:#f0f9ff;border-color:#bae6fd;" onclick="showPage('mc')">
-        <div class="qi">👥</div><div class="ql" style="color:#0369a1;">MC</div>
-      </div>
-      <div class="qtile" style="background:#f8fafc;border-color:#e2e8f0;" onclick="showPage('committees')">
-        <div class="qi">🤝</div><div class="ql" style="color:#475569;">Committees</div>
-      </div>
-      <div class="qtile" style="background:#fefce8;border-color:#fde68a;" onclick="openAdmin()">
-        <div class="qi">⚙️</div><div class="ql" style="color:#92400e;">Admin</div>
-      </div>
-    </div>
-
-    <!-- Stats dashboard -->
-    <div class="home-stats-bar">
-      <div class="stats-bar-chip">
-        <div class="sv">12</div><div class="sl">Blocks</div>
-      </div>
-      <div class="stats-bar-chip">
-        <div class="sv" id="home-sop-count">—</div><div class="sl">SOPs</div>
-      </div>
-      <div class="stats-bar-chip">
-        <div class="sv">4</div><div class="sl">MC Members</div>
-      </div>
-      <div class="stats-bar-chip">
-        <div class="sv">4</div><div class="sl">Committees</div>
       </div>
     </div>
 
@@ -398,6 +396,7 @@ body{
        SOPs PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-sops">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">📋 SOP Library</div>
     <div class="section-sub">Tap any SOP to read it on screen — no downloads needed</div>
 
@@ -434,6 +433,7 @@ body{
        MC MEMBERS PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-mc">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">👥 Managing Committee</div>
     <div class="section-sub">Your elected committee for 2024–25</div>
     <div class="mc-grid">
@@ -448,6 +448,7 @@ body{
        COMMITTEES PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-committees">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🤝 Community Subcommittees</div>
     <div class="section-sub">Volunteer-led groups driving SJR Bluewaters forward</div>
     <div class="committee-card"><h3>🌱 Green Committee</h3><p>Volunteers: Arun Nair, Priya Menon, Karthik S</p><div class="join-tag">Interested to join? → greencommittee@sjrbw.org</div></div>
@@ -460,6 +461,7 @@ body{
        EMERGENCY PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-emergency">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🚨 Emergency Contacts</div>
     <div class="section-sub">Quick access when it matters most</div>
     <div class="emergency-alert">
@@ -490,6 +492,7 @@ body{
        COMMUNITY HELPERS PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-helpers">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🩺 Community Helper Directory</div>
     <div class="section-sub">Trusted services and specialists recommended by residents</div>
     <div class="expand-box"><div class="expand-header" onclick="toggleExpand('ortho')">🦴 Ortho / Spine Specialists <span class="plus-icon" id="pi-ortho">+</span></div><div class="expand-content" id="ortho">Dr. Ramesh Ortho Clinic — +91 9988123412<br>Dr. Spine Care Center — +91 9845123412<br>Advanced Spine Institute — +91 9876501122</div></div>
@@ -504,6 +507,7 @@ body{
        AMENITIES PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-amenities">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🏊 Society Amenities</div>
     <div class="section-sub">Facilities available to all SJR Bluewaters residents</div>
     <div class="expand-box"><div class="expand-header" onclick="toggleExpand('apool')">🏊 Swimming Pool <span class="plus-icon" id="pi-apool">+</span></div><div class="expand-content" id="apool">Large family swimming pool with separate kids' section and deck seating. Open daily 6–9 AM and 4–8 PM. Closed Tuesdays for cleaning.<div class="amenity-img-placeholder"><span>📷</span>Upload Pool Photo</div></div></div>
@@ -517,6 +521,7 @@ body{
        EVENTS PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-events">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🎉 Events & Activities</div>
     <div class="section-sub">What's happening at SJR Bluewaters</div>
     <div class="panel-grid">
@@ -622,15 +627,38 @@ body{
 
 <!-- DASHBOARD -->
       <div class="asection" id="aDash">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-          <div style="background:#0369a1;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">📋</div><div style="font-size:22px;font-weight:800;" id="dash-sop-count">—</div><div style="font-size:10px;opacity:.8;">SOPs Published</div></div>
-          <div style="background:#059669;color:#fff;border-radius:14px;padding:16px;"><div style="font-size:22px;margin-bottom:2px;">🔗</div><div style="font-size:14px;font-weight:700;" id="dash-db-status">Not connected</div><div style="font-size:10px;opacity:.8;">Supabase Status</div></div>
+        <!-- Supabase status line -->
+        <div style="font-size:11px;color:#6b7280;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+          <span>🔗 Database:</span>
+          <span id="dash-db-status" style="font-weight:700;color:#059669;">Checking…</span>
         </div>
-        <div style="background:#fff;border-radius:12px;padding:14px;border:1px solid #e5e7eb;">
+        <!-- Stat cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,#0369a1,#38bdf8);color:#fff;border-radius:16px;padding:20px;cursor:pointer;" onclick="showATab('aSOPs',null)">
+            <div style="font-size:28px;margin-bottom:2px;">📋</div>
+            <div style="font-size:32px;font-weight:900;line-height:1;" id="dash-sop-count">—</div>
+            <div style="font-size:11px;opacity:.85;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">SOPs Published</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#7e22ce,#a855f7);color:#fff;border-radius:16px;padding:20px;cursor:pointer;" onclick="showATab('aFeedback',document.querySelector('[onclick*=aFeedback]'));loadFeedback()">
+            <div style="font-size:28px;margin-bottom:2px;">💬</div>
+            <div style="font-size:32px;font-weight:900;line-height:1;" id="dash-feedback-count">—</div>
+            <div style="font-size:11px;opacity:.85;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Feedback Received</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#059669,#34d399);color:#fff;border-radius:16px;padding:20px;cursor:pointer;" onclick="showATab('aAnn',null)">
+            <div style="font-size:28px;margin-bottom:2px;">📢</div>
+            <div style="font-size:32px;font-weight:900;line-height:1;" id="dash-ann-count">—</div>
+            <div style="font-size:11px;opacity:.85;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Announcements</div>
+          </div>
+        </div>
+        <!-- Quick actions -->
+        <div style="background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e5e7eb;">
           <strong style="font-size:12px;color:#374151;display:block;margin-bottom:10px;">⚡ Quick Actions</strong>
-          <button class="btn" style="width:100%;margin-bottom:8px;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aSOPs',null)">📋 Upload / Add SOP</button>
-          <button class="btn" style="width:100%;margin-bottom:8px;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aAnn',null)">📢 Post Announcement</button>
-          <button class="btn" style="width:100%;background:#f8fafc;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aDB',null)">🔗 Configure Supabase</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn" style="background:#fff;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aSOPs',null)">📋 Upload / Add SOP</button>
+            <button class="btn" style="background:#fff;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aAnn',null)">📢 Post Announcement</button>
+            <button class="btn" style="background:#fff;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aEvents',null)">🎉 Add Event</button>
+            <button class="btn" style="background:#fff;color:#0369a1;border:1px solid #bae6fd;text-align:left;" onclick="showATab('aDB',null)">🔗 Configure Database</button>
+          </div>
         </div>
       </div>
 
@@ -884,18 +912,12 @@ function updateDBConnectionStatus() {
 }
 
 function updateDBStatus() {
+  // Only show Supabase status inside the admin panel dashboard — never in the topbar for residents
   const el = document.getElementById('dbStatus');
+  if(el) el.style.display = 'none'; // always hidden in topbar
+
   const da = document.getElementById('dash-db-status');
-  if(SUPABASE_URL && SUPABASE_KEY) {
-    el.textContent = '🟢 Supabase Live';
-    el.className = 'supabase-indicator';
-    el.style.display = 'inline-block';
-    if(da) da.textContent = 'Connected ✓';
-  } else {
-    // Don't show anything in the header when not connected — no confusing "Connecting..." state
-    el.style.display = 'none';
-    if(da) da.textContent = 'Not connected';
-  }
+  if(da) da.textContent = (SUPABASE_URL && SUPABASE_KEY) ? '🟢 Connected' : '⚡ Not connected';
 }
 
 async function sbFetch(path, opts={}) {
@@ -1143,6 +1165,8 @@ function openAdmin(){
     document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
     document.getElementById('aDash').classList.add('active');
     document.querySelectorAll('.atab').forEach(t=>t.style.display='inline-block');
+    // Load feedback count for dashboard card
+    loadFeedbackCount();
   } else {
     document.querySelectorAll('.asection').forEach(s => s.classList.remove('active'));
     document.getElementById('aLogin').classList.add('active');
@@ -1458,6 +1482,14 @@ async function checkExistingSession(){
   // Always ensure modal is closed on page load — never auto-open
   document.getElementById('adminModal').classList.remove('open');
 
+  // Always start logged out — clear any saved admin session on fresh page load
+  // This prevents residents from seeing the Logout button if admin used same browser
+  localStorage.removeItem('sb_admin_session');
+  isAdminLoggedIn = false;
+  currentUser = null;
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('adminAccessBtn').style.display = 'inline-block';
+
   // Restore config
   if(SUPABASE_URL && SUPABASE_KEY) {
     document.getElementById('configBanner').style.display = 'none';
@@ -1472,7 +1504,6 @@ async function checkExistingSession(){
   }
   updateDBStatus();
   updateDBConnectionStatus();
-  checkExistingSession();
   loadSOPs();
 })();
 // ════════════════════════════════════════════
@@ -1481,6 +1512,17 @@ async function checkExistingSession(){
 let currentFeedbackSopId = null;
 let currentFeedbackSopTitle = null;
 let currentFeedbackThumb = null;
+
+async function loadFeedbackCount() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/sop_feedback?select=id', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    const data = await res.json();
+    const el = document.getElementById('dash-feedback-count');
+    if(el && Array.isArray(data)) el.textContent = data.length;
+  } catch(e) {}
+}
 
 function toggleFeedbackForm() {
   const form = document.getElementById('sopFeedbackForm');
@@ -1632,7 +1674,21 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
     return;
   }
 
-  // Group by SOP title
+  // Update dashboard feedback count
+  const dashFb = document.getElementById('dash-feedback-count');
+  if(dashFb) dashFb.textContent = items.length;
+
+  // Group by SOP category (from allSOPs lookup)
+  const catMap = {};
+  allSOPs.forEach(s => { catMap[s.id] = s.category || 'General'; });
+
+  const byCategory = {};
+  items.forEach(i => {
+    const cat = (i.sop_id && catMap[i.sop_id]) || 'General';
+    if(!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(i);
+  });
+
   const byTitle = {};
   items.forEach(i => {
     const title = i.sop_title || 'Unknown SOP';
@@ -1640,14 +1696,27 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
     byTitle[title].push(i);
   });
 
-  // Build category summary and detail view
-  const totalComments = items.filter(i => i.comment).length;
+  const catColors = ['linear-gradient(135deg,#0369a1,#38bdf8)','linear-gradient(135deg,#059669,#34d399)',
+    'linear-gradient(135deg,#7e22ce,#a855f7)','linear-gradient(135deg,#ea580c,#fb923c)',
+    'linear-gradient(135deg,#0891b2,#22d3ee)','linear-gradient(135deg,#be185d,#f472b6)'];
 
   let html = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div style="font-size:13px;color:#6b7280;">${items.length} response${items.length!==1?'s':''} across ${Object.keys(byTitle).length} SOP${Object.keys(byTitle).length!==1?'s':''}</div>
+      <div style="font-size:13px;color:#6b7280;">${items.length} response${items.length!==1?'s':''} · ${Object.keys(byTitle).length} SOP${Object.keys(byTitle).length!==1?'s':''}</div>
       <button onclick="downloadFeedbackCSV()" style="padding:7px 14px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Download Excel</button>
     </div>
+
+    <!-- Category stat cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px;">
+      ${Object.entries(byCategory).map(([cat, catItems], i) => `
+        <div onclick="filterFeedbackByCategory('${cat}')"
+          style="background:${catColors[i%catColors.length]};color:#fff;border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:transform .15s;" 
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          <div style="font-size:24px;font-weight:900;">${catItems.length}</div>
+          <div style="font-size:11px;font-weight:700;opacity:.9;margin-top:2px;">${cat}</div>
+        </div>`).join('')}
+    </div>
+
     <div id="fbSummaryView">
       ${Object.entries(byTitle).map(([title, fbItems], idx) => `
         <div onclick="showFeedbackDetail(${idx})" 
@@ -1661,13 +1730,11 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
     </div>
     <div id="fbDetailView" style="display:none;">
       <button onclick="document.getElementById('fbSummaryView').style.display='block';document.getElementById('fbDetailView').style.display='none';"
-        style="margin-bottom:12px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;">← Back</button>
+        style="margin-bottom:12px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;">← Back to all</button>
       <div id="fbDetailContent"></div>
     </div>`;
 
   el.innerHTML = html;
-
-  // Store items globally for the detail view
   window.fbAllItems = items;
   window.fbByTitleKeys = Object.keys(byTitle);
   window.fbByTitle = byTitle;
@@ -1688,6 +1755,33 @@ function showFeedbackDetail(idx) {
           · ${new Date(i.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
         </div>
       </div>`).join('')}`;
+}
+
+function filterFeedbackByCategory(cat) {
+  const items = (window.fbAllItems || []).filter(i => {
+    const catMap = {};
+    allSOPs.forEach(s => { catMap[s.id] = s.category || 'General'; });
+    return ((i.sop_id && catMap[i.sop_id]) || 'General') === cat;
+  });
+  // Group filtered by title
+  const byTitle = {};
+  items.forEach(i => {
+    const title = i.sop_title || 'Unknown SOP';
+    if(!byTitle[title]) byTitle[title] = [];
+    byTitle[title].push(i);
+  });
+  window.fbByTitleKeys = Object.keys(byTitle);
+  window.fbByTitle = byTitle;
+
+  document.getElementById('fbSummaryView').innerHTML = Object.entries(byTitle).map(([title, fbItems], idx) => `
+    <div onclick="showFeedbackDetail(${idx})"
+      style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#1e3a5f;margin-bottom:3px;">${title}</div>
+        <div style="font-size:11px;color:#6b7280;">${fbItems.length} comment${fbItems.length!==1?'s':''}</div>
+      </div>
+      <div style="font-size:18px;color:#6b7280;">›</div>
+    </div>`).join('');
 }
 
 function downloadFeedbackCSV() {
