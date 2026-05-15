@@ -277,14 +277,15 @@ body{
         <button id="backHomeBtn" onclick="showPage('home')" style="display:none;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);font-size:12px;font-weight:600;color:#fff;cursor:pointer;">← Home</button>
         <div id="dbStatus" style="display:none;"></div>
         <button class="btn btn-dark" id="adminAccessBtn" onclick="openAdmin()" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.2);color:#fff;">🔐 Admin Login</button>
-        <button id="logoutBtn" onclick="logoutAdmin()" style="display:none;padding:8px 16px;background:rgba(220,38,38,.8);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;">Logout</button>
+        <button id="adminPanelBtn" onclick="openAdmin()" style="display:none;padding:8px 16px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;">⚙️ Admin Panel</button>
+      <button id="logoutBtn" onclick="logoutAdmin()" style="display:none;padding:8px 16px;background:rgba(220,38,38,.8);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;">Logout</button>
       </div>
     </div>
 
     <!-- Quick access tiles -->
     <!-- Stats bar: Blocks, SOPs, MC Members, Committees — clickable -->
     <div class="home-stats-bar">
-      <div class="stats-bar-chip" onclick="showPage('mc')" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);">
+      <div class="stats-bar-chip" onclick="showPage('blocks')" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);">
         <div class="sv">12</div><div class="sl">Blocks</div>
       </div>
       <div class="stats-bar-chip" onclick="showPage('sops')" style="background:linear-gradient(135deg,#059669,#34d399);">
@@ -393,6 +394,31 @@ body{
   </div>
 
   <!-- ════════════════════════════════════════
+       BLOCKS PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-blocks">
+  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
+  <div class="card" style="margin:16px;">
+    <h2>🏢 Community Blocks</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">SJR Bluewaters comprises 12 residential blocks in Parappana Agrahara, Bangalore.</p>
+    <div class="blocks-wrap">
+      <span class="block-chip">Alston</span>
+      <span class="block-chip">Boston</span>
+      <span class="block-chip">Clarence</span>
+      <span class="block-chip">Crescent</span>
+      <span class="block-chip">Greenwich</span>
+      <span class="block-chip">Goldcoast</span>
+      <span class="block-chip">Hamstead A</span>
+      <span class="block-chip">Hamstead B</span>
+      <span class="block-chip">Hamstead AB</span>
+      <span class="block-chip">Kensington</span>
+      <span class="block-chip">Mayfair</span>
+      <span class="block-chip">Primrose</span>
+    </div>
+  </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
        SOPs PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-sops">
@@ -417,12 +443,14 @@ body{
     </div>
     <div class="filter-row" id="catFilters">
       <button class="fbtn active" data-cat="All" onclick="setCat(this)">All</button>
-      <button class="fbtn" data-cat="Security" onclick="setCat(this)">Security</button>
-      <button class="fbtn" data-cat="Parking" onclick="setCat(this)">Parking</button>
-      <button class="fbtn" data-cat="Amenities" onclick="setCat(this)">Amenities</button>
-      <button class="fbtn" data-cat="General" onclick="setCat(this)">General</button>
-      <button class="fbtn" data-cat="Housekeeping" onclick="setCat(this)">Housekeeping</button>
-      <button class="fbtn" data-cat="Admin" onclick="setCat(this)">Admin</button>
+      <button class="fbtn" data-cat="Security & Safety" onclick="setCat(this)">Security & Safety</button>
+      <button class="fbtn" data-cat="Amenities & Facility Usage" onclick="setCat(this)">Amenities & Facility Usage</button>
+      <button class="fbtn" data-cat="Governance & Compliance" onclick="setCat(this)">Governance & Compliance</button>
+      <button class="fbtn" data-cat="Vendor & Staff Management" onclick="setCat(this)">Vendor & Staff Management</button>
+      <button class="fbtn" data-cat="Community Conduct & Welfare" onclick="setCat(this)">Community Conduct & Welfare</button>
+      <button class="fbtn" data-cat="Pets, Animals & Environment" onclick="setCat(this)">Pets, Animals & Environment</button>
+      <button class="fbtn" data-cat="Resident Services & Operations" onclick="setCat(this)">Resident Services & Operations</button>
+      <button class="fbtn" data-cat="Finance & Administration" onclick="setCat(this)">Finance & Administration</button>
     </div>
     <div class="sop-list" id="sopListContainer">
       <div class="sop-loading">⏳ Loading SOPs…</div>
@@ -1359,14 +1387,64 @@ async function addLocalFileSOP(title, icon, cat, today, newId, msg) {
 function renderAdminSOPList() {
   const el = document.getElementById('admin-sop-list');
   if(!el) return;
-  el.innerHTML = allSOPs.map(s => `
-    <div class="alist-item">
-      <span class="alist-name">${s.icon||'📋'} ${s.title} <span class="pill pill-blue" style="margin-left:4px;">${s.category}</span></span>
-      <div class="alist-actions">
-        <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
-        <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
-      </div>
-    </div>`).join('');
+
+  const CATS = [
+    'Security & Safety','Amenities & Facility Usage','Governance & Compliance',
+    'Vendor & Staff Management','Community Conduct & Welfare','Pets, Animals & Environment',
+    'Resident Services & Operations','Finance & Administration'
+  ];
+
+  // Group SOPs by category
+  const grouped = {};
+  CATS.forEach(c => grouped[c] = []);
+  allSOPs.forEach(s => {
+    const cat = s.category || 'Uncategorised';
+    if(!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(s);
+  });
+
+  const catColors = {
+    'Security & Safety':'#1d4ed8','Amenities & Facility Usage':'#0f766e',
+    'Governance & Compliance':'#7e22ce','Vendor & Staff Management':'#c2410c',
+    'Community Conduct & Welfare':'#15803d','Pets, Animals & Environment':'#059669',
+    'Resident Services & Operations':'#0369a1','Finance & Administration':'#b45309',
+    'Uncategorised':'#6b7280'
+  };
+
+  el.innerHTML = Object.entries(grouped).map(([cat, sops]) => {
+    if(!sops.length) return '';
+    const uid = 'acat_' + cat.replace(/[^a-z0-9]/gi,'_');
+    const color = catColors[cat] || '#6b7280';
+    return `
+      <div style="margin-bottom:8px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+        <div onclick="toggleAdminCat('${uid}')" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8fafc;cursor:pointer;user-select:none;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:${color};display:inline-block;"></span>
+            <span style="font-size:13px;font-weight:700;color:#1e3a5f;">${cat}</span>
+            <span style="font-size:11px;color:#6b7280;background:#e5e7eb;border-radius:99px;padding:1px 8px;">${sops.length}</span>
+          </div>
+          <span id="${uid}_icon" style="font-size:16px;color:#6b7280;transition:transform .2s;">＋</span>
+        </div>
+        <div id="${uid}" style="display:none;">
+          ${sops.map(s => `
+            <div class="alist-item" style="border-top:1px solid #f1f5f9;">
+              <span class="alist-name">${s.icon||'📋'} ${s.title}</span>
+              <div class="alist-actions">
+                <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
+                <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleAdminCat(uid) {
+  const el = document.getElementById(uid);
+  const icon = document.getElementById(uid + '_icon');
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '＋' : '－';
 }
 
 async function archiveSOP(id, btn) {
@@ -1433,6 +1511,7 @@ async function loginAdmin() {
 
       document.getElementById('adminAccessBtn').style.display='none';
       document.getElementById('logoutBtn').style.display='inline-block';
+      document.getElementById('adminPanelBtn').style.display='inline-block';
 
       msg.style.display='block';
       msg.style.color='#15803d';
@@ -1461,6 +1540,7 @@ function logoutAdmin(){
   isAdminLoggedIn = false;
 
   document.getElementById('logoutBtn').style.display='none';
+  document.getElementById('adminPanelBtn').style.display='none';
   document.getElementById('adminAccessBtn').style.display='inline-block';
 
   closeAdmin();
@@ -1488,6 +1568,7 @@ async function checkExistingSession(){
       currentUser = user;
       isAdminLoggedIn = true;
       document.getElementById('logoutBtn').style.display = 'inline-block';
+      document.getElementById('adminPanelBtn').style.display = 'inline-block';
       document.getElementById('adminAccessBtn').style.display = 'none';
     } else {
       // Token expired or invalid — clear it
