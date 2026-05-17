@@ -1296,31 +1296,46 @@ async function openSOP(id) {
   const body = document.getElementById('sopModalBody');
   const dlBtn = document.getElementById('sopDownloadBtn');
   if(sop.content_type === 'pdf' && sop.file_url) {
-    // Convert to Blob URL so no raw data/supabase URL is exposed in browser
-    let pdfSrc = sop.file_url;
-    if(sop.file_url.startsWith('data:')) {
-      try {
-        const b64 = sop.file_url.split(',')[1];
-        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-        const blob = new Blob([bytes], {type:'application/pdf'});
-        pdfSrc = URL.createObjectURL(blob);
-      } catch(e) { pdfSrc = sop.file_url; }
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const pdfUrl = sop.file_url;
+
+    if(isMobile) {
+      // Mobile browsers can't render PDFs in iframes — show a tap-to-open button instead
+      body.style.padding = '28px 24px';
+      body.innerHTML = `
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:56px;margin-bottom:16px;">📄</div>
+          <div style="font-size:16px;font-weight:700;color:#1e3a5f;margin-bottom:6px;">${sop.title}</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:24px;">${sop.file_name || 'PDF Document'}</div>
+          <a href="${pdfUrl}" target="_blank" rel="noopener"
+            style="display:inline-block;background:#0369a1;color:#fff;text-decoration:none;padding:13px 28px;border-radius:12px;font-size:14px;font-weight:700;margin-bottom:12px;">
+            📖 Open PDF
+          </a>
+          <div style="font-size:11px;color:#9ca3af;margin-top:8px;">Opens in your browser's PDF viewer</div>
+        </div>`;
+      dlBtn.style.display = 'block';
+      dlBtn.onclick = () => window.open(pdfUrl, '_blank');
     } else {
-      // Fetch remote URL and convert to blob to hide supabase URL
-      try {
-        const resp = await fetch(sop.file_url);
-        const blob = await resp.blob();
-        pdfSrc = URL.createObjectURL(blob);
-      } catch(e) { pdfSrc = sop.file_url; }
+      // Desktop — render inline iframe
+      let pdfSrc = pdfUrl;
+      if(pdfUrl.startsWith('data:')) {
+        try {
+          const b64 = pdfUrl.split(',')[1];
+          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+          const blob = new Blob([bytes], {type:'application/pdf'});
+          pdfSrc = URL.createObjectURL(blob);
+        } catch(e) { pdfSrc = pdfUrl; }
+      }
+      body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
+      body.style.padding = '0';
+      dlBtn.style.display = 'block';
+      dlBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = pdfSrc;
+        a.download = sop.file_name || (sop.title + '.pdf');
+        a.click();
+      };
     }
-    body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
-    body.style.padding = '0'; dlBtn.style.display='block';
-    dlBtn.onclick = () => {
-      const a = document.createElement('a');
-      a.href = pdfSrc;
-      a.download = sop.file_name || (sop.title + '.pdf');
-      a.click();
-    };
   } else if(sop.content_type === 'text' && sop.content) {
     body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
   } else if(sop.content) {
@@ -1566,35 +1581,11 @@ function renderAdminSOPList() {
         </div>
         <div id="${uid}" style="display:none;">
           ${sops.map(s => `
-            <div style="border-top:1px solid #f1f5f9;">
-              <div class="alist-item" style="border:none;border-radius:0;">
-                <div style="flex:1;min-width:0;">
-                  <div class="alist-name" style="margin-bottom:2px;">${s.icon||'📋'} ${s.title}</div>
-                  <div id="desc-display-${s.id}" style="font-size:11px;color:${s.description?'#0369a1':'#9ca3af'};font-style:${s.description?'normal':'italic'};">
-                    ${s.description || 'No description — click Edit to add one'}
-                  </div>
-                </div>
-                <div class="alist-actions" style="flex-shrink:0;margin-left:10px;">
-                  <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
-                  <button class="aact-edit" style="color:#059669;" onclick="toggleDescEdit('${s.id}')">Edit</button>
-                  <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
-                </div>
-              </div>
-              <!-- Inline description editor (hidden by default) -->
-              <div id="desc-editor-${s.id}" style="display:none;padding:0 14px 12px;background:#f8fafc;border-top:1px solid #f1f5f9;">
-                <textarea id="desc-input-${s.id}" placeholder="Short description of what this SOP covers…"
-                  style="width:100%;box-sizing:border-box;padding:8px 11px;border:1px solid #bae6fd;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:60px;outline:none;margin-bottom:8px;">${s.description||''}</textarea>
-                <div style="display:flex;gap:8px;">
-                  <button onclick="saveDescription('${s.id}')"
-                    style="background:#0369a1;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
-                    💾 Save
-                  </button>
-                  <button onclick="toggleDescEdit('${s.id}')"
-                    style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
-                    Cancel
-                  </button>
-                  <span id="desc-save-msg-${s.id}" style="font-size:11px;align-self:center;display:none;"></span>
-                </div>
+            <div class="alist-item" style="border-top:1px solid #f1f5f9;">
+              <span class="alist-name">${s.icon||'📋'} ${s.title}</span>
+              <div class="alist-actions">
+                <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
+                <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
               </div>
             </div>`).join('')}
         </div>
@@ -1620,69 +1611,6 @@ async function archiveSOP(id, btn) {
   renderSOPs(); renderAdminSOPList();
   document.getElementById('home-sop-count').textContent = allSOPs.length;
   document.getElementById('dash-sop-count').textContent = allSOPs.length;
-}
-
-// ── Description inline editor ─────────────────────────────────────
-function toggleDescEdit(id) {
-  const editor  = document.getElementById('desc-editor-' + id);
-  const isOpen  = editor.style.display !== 'none';
-  editor.style.display = isOpen ? 'none' : 'block';
-  if (!isOpen) {
-    // Focus the textarea when opening
-    const ta = document.getElementById('desc-input-' + id);
-    if (ta) setTimeout(() => ta.focus(), 50);
-  }
-}
-
-async function saveDescription(id) {
-  const ta  = document.getElementById('desc-input-' + id);
-  const msg = document.getElementById('desc-save-msg-' + id);
-  const display = document.getElementById('desc-display-' + id);
-  const desc = ta.value.trim();
-
-  msg.style.display = 'inline';
-  msg.style.color   = '#0369a1';
-  msg.textContent   = '⏳ Saving…';
-
-  // Update in Supabase
-  if (SUPABASE_URL && SUPABASE_KEY && !String(id).startsWith('local_')) {
-    try {
-      await sbFetch(`sops?id=eq.${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ description: desc || null })
-      });
-      msg.style.color   = '#15803d';
-      msg.textContent   = '✅ Saved!';
-    } catch(e) {
-      msg.style.color   = '#dc2626';
-      msg.textContent   = '❌ Error: ' + e.message;
-      return;
-    }
-  } else {
-    // Local-only fallback
-    msg.style.color   = '#f97316';
-    msg.textContent   = '✅ Saved locally';
-  }
-
-  // Update the in-memory SOP object
-  const sop = allSOPs.find(s => s.id == id);
-  if (sop) sop.description = desc || null;
-
-  // Update the displayed description line without re-rendering the whole list
-  if (display) {
-    display.textContent  = desc || 'No description — click Edit to add one';
-    display.style.color  = desc ? '#0369a1' : '#9ca3af';
-    display.style.fontStyle = desc ? 'normal' : 'italic';
-  }
-
-  // Also refresh resident SOP list so description shows there too
-  renderSOPs();
-
-  // Auto-close editor after a short delay
-  setTimeout(() => {
-    toggleDescEdit(id);
-    msg.style.display = 'none';
-  }, 1200);
 }
 
 function postAnnouncement() {
