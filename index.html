@@ -329,7 +329,12 @@ body{
       <div>
         <!-- Announcements (dynamic) -->
         <div class="card">
-          <h2>📢 Announcements <span class="pill pill-orange" style="margin-left:4px;display:none;" id="ann-badge">0 New</span></h2>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <h2 style="margin:0;">📢 Announcements <span class="pill pill-orange" style="margin-left:4px;display:none;" id="ann-badge">0 New</span></h2>
+            <div id="feedback-live-stat" style="display:none;align-items:center;gap:6px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:6px 14px;font-size:13px;color:#5b21b6;">
+              💬 Feedbacks received: <strong id="feedback-live-count" style="color:#7e22ce;">0</strong>
+            </div>
+          </div>
           <div id="ann-list"><div class="sop-loading">Loading…</div></div>
         </div>
 
@@ -438,10 +443,16 @@ body{
     </div>
 
     <div class="sop-toolbar">
-      <input class="search-box" type="text" id="sopSearch" placeholder="🔍  Search SOPs…" oninput="renderSOPs()">
-      <button class="btn btn-sm" onclick="loadSOPs()">↻ Refresh</button>
+      <input class="search-box" type="text" id="sopSearch" placeholder="🔍  Search SOPs…" oninput="document.getElementById('sopDirContainer').style.display==='none'?renderSOPs():renderSOPDirectory()">
+      <div style="display:flex;gap:6px;">
+        <div style="display:flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+          <button id="viewBtnList" onclick="setSopView('list')" style="padding:7px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#1e3a5f;color:#fff;">≡ List</button>
+          <button id="viewBtnDir" onclick="setSopView('dir')" style="padding:7px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#fff;color:#6b7280;">⊞ Directory</button>
+        </div>
+        <button class="btn btn-sm" onclick="loadSOPs()">↻ Refresh</button>
+      </div>
     </div>
-    <div class="filter-row" id="catFilters">
+    <div class="filter-row" id="catFilters" >
       <button class="fbtn active" data-cat="All" onclick="setCat(this)">All</button>
       <button class="fbtn" data-cat="Security & Safety" onclick="setCat(this)">Security & Safety</button>
       <button class="fbtn" data-cat="Amenities & Facility Usage" onclick="setCat(this)">Amenities & Facility Usage</button>
@@ -455,6 +466,7 @@ body{
     <div class="sop-list" id="sopListContainer">
       <div class="sop-loading">⏳ Loading SOPs…</div>
     </div>
+    <div id="sopDirContainer" style="display:none;"></div>
   </div>
 
   <!-- ════════════════════════════════════════
@@ -700,6 +712,7 @@ body{
         <div id="newSopForm" style="background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:14px;">
           <span class="form-label">Add New SOP</span>
           <input class="form-input" id="sopTitle" placeholder="SOP Title  (e.g. Visitor Entry Rules)" />
+          <input class="form-input" id="sopDesc" placeholder="One-liner description  (e.g. Rules for visitor entry and gate pass issuance)" />
           <div class="form-row">
             <input class="form-input" id="sopIcon" placeholder="Icon emoji  e.g. 🛡️" style="margin-bottom:0;" />
             <select class="form-select" id="sopCategory" style="margin-bottom:0;">
@@ -794,6 +807,7 @@ body{
   title text NOT NULL,
   category text,
   icon text DEFAULT '📋',
+  description text,
   content text,
   file_url text,
   file_name text,
@@ -998,6 +1012,7 @@ async function loadSOPs() {
     renderAdminSOPList();
     renderHomeSOPs(homeList);
     renderAnnouncements();
+    loadPublicFeedbackCount();
   } catch(e) {
     console.error('loadSOPs error:', e);
     allSOPs = SEED_SOPS;
@@ -1028,6 +1043,23 @@ function renderHomeSOPs(el) {
 const FIXED_ANNOUNCEMENTS = [
   { text: 'Annual General Meeting scheduled — May 18 at Clubhouse, 6PM', tag: 'Meeting', tagClass: 'pill-teal', expires: '2025-05-18' },
 ];
+
+async function loadPublicFeedbackCount() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/sop_feedback?select=id,created_at', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    const data = await res.json();
+    if(!Array.isArray(data) || !data.length) return;
+
+    const stat = document.getElementById('feedback-live-stat');
+    const count = document.getElementById('feedback-live-count');
+    if(stat && count) {
+      count.textContent = data.length;
+      stat.style.display = 'inline-flex';
+    }
+  } catch(e) {}
+}
 
 function renderAnnouncements() {
   const el = document.getElementById('ann-list');
@@ -1138,6 +1170,99 @@ function renderSOPs() {
     </div>`).join('');
 }
 
+function setSopView(view) {
+  const listEl = document.getElementById('sopListContainer');
+  const dirEl = document.getElementById('sopDirContainer');
+  const filterRow = document.getElementById('catFilters');
+  const btnList = document.getElementById('viewBtnList');
+  const btnDir = document.getElementById('viewBtnDir');
+
+  if(view === 'list') {
+    listEl.style.display = 'flex';
+    dirEl.style.display = 'none';
+    filterRow.style.display = 'flex';
+    btnList.style.background = '#1e3a5f'; btnList.style.color = '#fff';
+    btnDir.style.background = '#fff'; btnDir.style.color = '#6b7280';
+    renderSOPs();
+  } else {
+    listEl.style.display = 'none';
+    dirEl.style.display = 'block';
+    filterRow.style.display = 'none';
+    btnList.style.background = '#fff'; btnList.style.color = '#6b7280';
+    btnDir.style.background = '#1e3a5f'; btnDir.style.color = '#fff';
+    renderSOPDirectory();
+  }
+}
+
+function renderSOPDirectory() {
+  const el = document.getElementById('sopDirContainer');
+  const q = (document.getElementById('sopSearch').value || '').toLowerCase();
+  const CATS = [
+    'Security & Safety','Amenities & Facility Usage','Governance & Compliance',
+    'Vendor & Staff Management','Community Conduct & Welfare','Pets, Animals & Environment',
+    'Resident Services & Operations','Finance & Administration'
+  ];
+  const catColors = {
+    'Security & Safety':'#1d4ed8','Amenities & Facility Usage':'#0f766e',
+    'Governance & Compliance':'#7e22ce','Vendor & Staff Management':'#c2410c',
+    'Community Conduct & Welfare':'#15803d','Pets, Animals & Environment':'#7e22ce',
+    'Resident Services & Operations':'#0369a1','Finance & Administration':'#b45309'
+  };
+
+  const grouped = {};
+  CATS.forEach(c => grouped[c] = []);
+  allSOPs.forEach(s => {
+    if(q && !s.title.toLowerCase().includes(q) && !(s.description||'').toLowerCase().includes(q)) return;
+    const cat = s.category || 'Uncategorised';
+    if(!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(s);
+  });
+
+  el.innerHTML = Object.entries(grouped).map(([cat, sops], ci) => {
+    if(!sops.length) return '';
+    const uid = 'dir_' + ci;
+    const color = catColors[cat] || '#6b7280';
+    return `
+      <div style="margin-bottom:6px;">
+        <div onclick="toggleDirCat('${uid}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer;user-select:none;margin-bottom:2px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;"></span>
+            <span style="font-size:13px;font-weight:600;color:#1e3a5f;">${cat}</span>
+            <span style="font-size:11px;padding:2px 8px;border-radius:99px;background:#dbeafe;color:#1d4ed8;font-weight:600;">${sops.length}</span>
+          </div>
+          <span id="${uid}_icon" style="font-size:14px;color:#6b7280;">＋</span>
+        </div>
+        <div id="${uid}" style="display:none;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr>
+              <th style="font-size:11px;font-weight:600;color:#6b7280;text-align:left;padding:8px 14px;border-bottom:1px solid #f1f5f9;background:#fafafa;">SOP</th>
+              <th style="font-size:11px;font-weight:600;color:#6b7280;text-align:left;padding:8px 14px;border-bottom:1px solid #f1f5f9;background:#fafafa;">What it covers</th>
+              <th style="background:#fafafa;border-bottom:1px solid #f1f5f9;"></th>
+            </tr></thead>
+            <tbody>${sops.map(s => `
+              <tr onclick="openSOP('${s.id}')" style="cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+                <td style="padding:10px 14px;border-bottom:1px solid #f9fafb;font-size:13px;font-weight:600;color:#1e3a5f;vertical-align:top;">
+                  ${s.icon||'📋'} ${s.title}
+                  ${s.file_url||s.content_type==='pdf'?'<span style="font-size:10px;background:#ccfbf1;color:#0f766e;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px;">PDF</span>':''}
+                </td>
+                <td style="padding:10px 14px;border-bottom:1px solid #f9fafb;font-size:12px;color:#6b7280;vertical-align:top;line-height:1.5;">${s.description || '<em style="color:#d1d5db;">No description added</em>'}</td>
+                <td style="padding:10px 14px;border-bottom:1px solid #f9fafb;font-size:13px;color:#0369a1;white-space:nowrap;vertical-align:top;">View →</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleDirCat(uid) {
+  const el = document.getElementById(uid);
+  const icon = document.getElementById(uid + '_icon');
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '＋' : '－';
+}
+
 function setCat(btn) {
   document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -1153,7 +1278,7 @@ function formatDate(d) {
 // ════════════════════════════════════════════
 // SOP VIEWER MODAL
 // ════════════════════════════════════════════
-function openSOP(id) {
+async function openSOP(id) {
   const sop = allSOPs.find(s => s.id == id);
   if(!sop) return;
   document.getElementById('sopModalTitle').textContent = (sop.icon||'📋') + '  ' + sop.title;
@@ -1171,17 +1296,30 @@ function openSOP(id) {
   const body = document.getElementById('sopModalBody');
   const dlBtn = document.getElementById('sopDownloadBtn');
   if(sop.content_type === 'pdf' && sop.file_url) {
-    body.innerHTML = `<iframe class="sop-pdf-frame" src="${sop.file_url}" title="${sop.title}"></iframe>`;
+    // Convert to Blob URL so no raw data/supabase URL is exposed in browser
+    let pdfSrc = sop.file_url;
+    if(sop.file_url.startsWith('data:')) {
+      try {
+        const b64 = sop.file_url.split(',')[1];
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], {type:'application/pdf'});
+        pdfSrc = URL.createObjectURL(blob);
+      } catch(e) { pdfSrc = sop.file_url; }
+    } else {
+      // Fetch remote URL and convert to blob to hide supabase URL
+      try {
+        const resp = await fetch(sop.file_url);
+        const blob = await resp.blob();
+        pdfSrc = URL.createObjectURL(blob);
+      } catch(e) { pdfSrc = sop.file_url; }
+    }
+    body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
     body.style.padding = '0'; dlBtn.style.display='block';
     dlBtn.onclick = () => {
-      if(sop.file_url.startsWith('data:')) {
-        const a = document.createElement('a');
-        a.href = sop.file_url;
-        a.download = sop.file_name || (sop.title + '.pdf');
-        a.click();
-      } else {
-        window.open(sop.file_url, '_blank');
-      }
+      const a = document.createElement('a');
+      a.href = pdfSrc;
+      a.download = sop.file_name || (sop.title + '.pdf');
+      a.click();
     };
   } else if(sop.content_type === 'text' && sop.content) {
     body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
@@ -1349,7 +1487,8 @@ async function publishSOP() {
 
     if(SUPABASE_URL && SUPABASE_KEY) {
       try {
-        const rec = await sbFetch('sops', {method:'POST', body:JSON.stringify({title,icon,category:cat,content_type:'text',content:formattedContent,created_at:today})});
+        const desc2 = (document.getElementById('sopDesc').value||'').trim();
+        const rec = await sbFetch('sops', {method:'POST', body:JSON.stringify({title,icon,category:cat,description:desc2||null,content_type:'text',content:formattedContent,created_at:today})});
         allSOPs.unshift(Array.isArray(rec)?rec[0]:rec);
         msg.style.color='#15803d'; msg.textContent='✅ SOP published to Supabase!';
       } catch(e) {
@@ -1366,7 +1505,7 @@ async function publishSOP() {
   document.getElementById('home-sop-count').textContent = allSOPs.length;
   document.getElementById('dash-sop-count').textContent = allSOPs.length;
   // Reset form
-  document.getElementById('sopTitle').value=''; document.getElementById('sopIcon').value='';
+  document.getElementById('sopTitle').value=''; document.getElementById('sopIcon').value=''; document.getElementById('sopDesc').value='';
   document.getElementById('sopContent').value=''; clearFile();
 }
 
@@ -1427,11 +1566,35 @@ function renderAdminSOPList() {
         </div>
         <div id="${uid}" style="display:none;">
           ${sops.map(s => `
-            <div class="alist-item" style="border-top:1px solid #f1f5f9;">
-              <span class="alist-name">${s.icon||'📋'} ${s.title}</span>
-              <div class="alist-actions">
-                <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
-                <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
+            <div style="border-top:1px solid #f1f5f9;">
+              <div class="alist-item" style="border:none;border-radius:0;">
+                <div style="flex:1;min-width:0;">
+                  <div class="alist-name" style="margin-bottom:2px;">${s.icon||'📋'} ${s.title}</div>
+                  <div id="desc-display-${s.id}" style="font-size:11px;color:${s.description?'#0369a1':'#9ca3af'};font-style:${s.description?'normal':'italic'};">
+                    ${s.description || 'No description — click Edit to add one'}
+                  </div>
+                </div>
+                <div class="alist-actions" style="flex-shrink:0;margin-left:10px;">
+                  <button class="aact-edit" onclick="openSOP('${s.id}')">View</button>
+                  <button class="aact-edit" style="color:#059669;" onclick="toggleDescEdit('${s.id}')">Edit</button>
+                  <button class="aact-arc" onclick="archiveSOP('${s.id}',this)">Archive</button>
+                </div>
+              </div>
+              <!-- Inline description editor (hidden by default) -->
+              <div id="desc-editor-${s.id}" style="display:none;padding:0 14px 12px;background:#f8fafc;border-top:1px solid #f1f5f9;">
+                <textarea id="desc-input-${s.id}" placeholder="Short description of what this SOP covers…"
+                  style="width:100%;box-sizing:border-box;padding:8px 11px;border:1px solid #bae6fd;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:60px;outline:none;margin-bottom:8px;">${s.description||''}</textarea>
+                <div style="display:flex;gap:8px;">
+                  <button onclick="saveDescription('${s.id}')"
+                    style="background:#0369a1;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">
+                    💾 Save
+                  </button>
+                  <button onclick="toggleDescEdit('${s.id}')"
+                    style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
+                    Cancel
+                  </button>
+                  <span id="desc-save-msg-${s.id}" style="font-size:11px;align-self:center;display:none;"></span>
+                </div>
               </div>
             </div>`).join('')}
         </div>
@@ -1457,6 +1620,69 @@ async function archiveSOP(id, btn) {
   renderSOPs(); renderAdminSOPList();
   document.getElementById('home-sop-count').textContent = allSOPs.length;
   document.getElementById('dash-sop-count').textContent = allSOPs.length;
+}
+
+// ── Description inline editor ─────────────────────────────────────
+function toggleDescEdit(id) {
+  const editor  = document.getElementById('desc-editor-' + id);
+  const isOpen  = editor.style.display !== 'none';
+  editor.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    // Focus the textarea when opening
+    const ta = document.getElementById('desc-input-' + id);
+    if (ta) setTimeout(() => ta.focus(), 50);
+  }
+}
+
+async function saveDescription(id) {
+  const ta  = document.getElementById('desc-input-' + id);
+  const msg = document.getElementById('desc-save-msg-' + id);
+  const display = document.getElementById('desc-display-' + id);
+  const desc = ta.value.trim();
+
+  msg.style.display = 'inline';
+  msg.style.color   = '#0369a1';
+  msg.textContent   = '⏳ Saving…';
+
+  // Update in Supabase
+  if (SUPABASE_URL && SUPABASE_KEY && !String(id).startsWith('local_')) {
+    try {
+      await sbFetch(`sops?id=eq.${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ description: desc || null })
+      });
+      msg.style.color   = '#15803d';
+      msg.textContent   = '✅ Saved!';
+    } catch(e) {
+      msg.style.color   = '#dc2626';
+      msg.textContent   = '❌ Error: ' + e.message;
+      return;
+    }
+  } else {
+    // Local-only fallback
+    msg.style.color   = '#f97316';
+    msg.textContent   = '✅ Saved locally';
+  }
+
+  // Update the in-memory SOP object
+  const sop = allSOPs.find(s => s.id == id);
+  if (sop) sop.description = desc || null;
+
+  // Update the displayed description line without re-rendering the whole list
+  if (display) {
+    display.textContent  = desc || 'No description — click Edit to add one';
+    display.style.color  = desc ? '#0369a1' : '#9ca3af';
+    display.style.fontStyle = desc ? 'normal' : 'italic';
+  }
+
+  // Also refresh resident SOP list so description shows there too
+  renderSOPs();
+
+  // Auto-close editor after a short delay
+  setTimeout(() => {
+    toggleDescEdit(id);
+    msg.style.display = 'none';
+  }, 1200);
 }
 
 function postAnnouncement() {
