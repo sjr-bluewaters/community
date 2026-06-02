@@ -535,12 +535,16 @@ body{
   <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🩺 Community Helper Directory</div>
     <div class="section-sub">Trusted services and specialists recommended by residents</div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('ortho')">🦴 Ortho / Spine Specialists <span class="plus-icon" id="pi-ortho">+</span></div><div class="expand-content" id="ortho">Dr. Ramesh Ortho Clinic — +91 9988123412<br>Dr. Spine Care Center — +91 9845123412<br>Advanced Spine Institute — +91 9876501122</div></div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('ent')">👂 ENT Specialists <span class="plus-icon" id="pi-ent">+</span></div><div class="expand-content" id="ent">Dr. Mehta ENT Care — +91 9845012345<br>Sound & Hearing Clinic — +91 9988771122</div></div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('car')">🚗 Car Service Centers <span class="plus-icon" id="pi-car">+</span></div><div class="expand-content" id="car">Bluewheel Auto Garage — +91 9876500011<br>QuickFix Car Care — +91 9988112299</div></div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('bike')">🏍️ Bike Repair Centers <span class="plus-icon" id="pi-bike">+</span></div><div class="expand-content" id="bike">MotoFast Repairs — +91 9888776655<br>2Wheel Experts — +91 9123456777</div></div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('plumb')">🔧 Plumbers & Electricians <span class="plus-icon" id="pi-plumb">+</span></div><div class="expand-content" id="plumb">Ravi Plumbing Works — +91 9912345678<br>BrightFix Electricals — +91 9988001122</div></div>
-    <div class="expand-box"><div class="expand-header" onclick="toggleExpand('tutor')">📚 Home Tutors <span class="plus-icon" id="pi-tutor">+</span></div><div class="expand-content" id="tutor">Maths & Science: Kavitha — +91 9845001234<br>English & Hindi: Ramesh — +91 9876500234</div></div>
+    <!-- Search -->
+    <div style="margin-bottom:16px;">
+      <input id="helperSearch" type="text" placeholder="🔍  Search by name, category or phone…"
+        style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 16px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;"
+        oninput="renderHelpers()" />
+    </div>
+    <!-- Grouped accordion rendered by JS -->
+    <div id="helpers-container">
+      <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">⏳ Loading helpers…</div>
+    </div>
   </div>
 
   <!-- ════════════════════════════════════════
@@ -646,6 +650,7 @@ body{
       <button class="atab" onclick="showATab('aAnn',this)">Announcements</button>
       <button class="atab" onclick="showATab('aEvents',this)">Events</button>
       <button class="atab" onclick="showATab('aDB',this)">Database</button>
+      <button class="atab" onclick="showATab('aHelpers',this);loadHelpers()">Helpers</button>
       <button class="atab" onclick="showATab('aFeedback',this);loadFeedback()">Feedback</button>
     </div>
     <div class="admin-body">
@@ -831,7 +836,23 @@ CREATE TABLE sop_feedback (
 );
 ALTER TABLE sop_feedback ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public insert feedback" ON sop_feedback FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);</div>
+CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);
+
+-- Community Helpers table
+CREATE TABLE IF NOT EXISTS community_helpers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  clinic text,
+  phone text NOT NULL,
+  category text NOT NULL,
+  note text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE community_helpers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read helpers" ON community_helpers FOR SELECT USING (true);
+CREATE POLICY "Auth insert helpers" ON community_helpers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Auth update helpers" ON community_helpers FOR UPDATE USING (true);
+CREATE POLICY "Auth delete helpers" ON community_helpers FOR DELETE USING (true);</div>
           <span class="form-label">Step 3 — Enter your credentials:</span>
           <input class="form-input" id="dbUrl" placeholder="Project URL  (https://xxxx.supabase.co)" />
           <input class="form-input" id="dbKey" placeholder="anon / public API key" />
@@ -855,6 +876,71 @@ CREATE POLICY "Public read feedback" ON sop_feedback FOR SELECT USING (true);</d
         <strong style="font-size:14px;color:#1e3a5f;display:block;margin-bottom:6px;">💬 SOP Feedback</strong>
         <p style="font-size:12px;color:#64748b;margin-bottom:14px;">Feedback submitted by community members on SOPs.</p>
         <div id="feedbackList"><div class="sop-loading">Click the Feedback tab to load…</div></div>
+      </div>
+
+      <!-- COMMUNITY HELPERS ADMIN -->
+      <div class="asection" id="aHelpers">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <strong style="font-size:14px;color:#1e3a5f;">🩺 Manage Community Helpers</strong>
+          <button class="btn btn-sm" onclick="document.getElementById('newHelperForm').style.display='block'">+ Add Helper</button>
+        </div>
+
+        <!-- Add Helper Form -->
+        <div id="newHelperForm" style="display:none;background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:16px;">
+          <span class="form-label">Add New Helper</span>
+          <div class="form-row">
+            <input class="form-input" id="hName" placeholder="Doctor / Contact Name *" style="margin-bottom:0;" />
+            <input class="form-input" id="hClinic" placeholder="Clinic / Hospital / Business Name" style="margin-bottom:0;" />
+          </div>
+          <div style="height:8px;"></div>
+          <div class="form-row">
+            <input class="form-input" id="hPhone" placeholder="Phone Number *" style="margin-bottom:0;" />
+            <input class="form-input" id="hNote" placeholder="Note (optional — e.g. 'Speaks Kannada')" style="margin-bottom:0;" />
+          </div>
+          <div style="height:8px;"></div>
+          <div class="form-row">
+            <select class="form-select" id="hCategory" style="margin-bottom:0;grid-column:1/-1;">
+              <option value="">Select Category *</option>
+              <option>🦴 Ortho / Spine Specialists</option>
+              <option>👂 ENT Specialists</option>
+              <option>🏥 General Physicians</option>
+              <option>🦷 Dentists</option>
+              <option>👁️ Eye Specialists</option>
+              <option>🧠 Neurologists</option>
+              <option>❤️ Cardiologists</option>
+              <option>🚗 Car Service Centers</option>
+              <option>🏍️ Bike Repair Centers</option>
+              <option>🔧 Plumbers</option>
+              <option>⚡ Electricians</option>
+              <option>🪚 Carpenters</option>
+              <option>🧹 Cleaning Services</option>
+              <option>📚 Home Tutors</option>
+              <option>🐾 Vets / Pet Care</option>
+              <option>💆 Physiotherapists</option>
+              <option>🍱 Tiffin / Home Food</option>
+              <option>📦 Packers & Movers</option>
+              <option>🖥️ IT / Computer Repair</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div style="height:8px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="form-submit" onclick="publishHelper()" style="flex:1;">➕ Add Helper</button>
+            <button onclick="document.getElementById('newHelperForm').style.display='none'"
+              style="padding:10px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;">Cancel</button>
+          </div>
+          <div id="helperPublishMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <!-- Search & filter -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input id="helperAdminSearch" type="text" placeholder="🔍 Search helpers…"
+            style="flex:1;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;"
+            oninput="renderAdminHelpers()" />
+        </div>
+
+        <span class="form-label">Published Helpers (<span id="helper-count">0</span>)</span>
+        <div id="admin-helper-list"><div style="font-size:12px;color:#94a3b8;padding:8px;">Loading…</div></div>
       </div>
 
     </div>
@@ -892,6 +978,7 @@ function showPage(id) {
   if(t) t.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   if(id === 'sops') loadSOPs();
+  if(id === 'helpers') loadHelpers();
 }
 
 // ════════════════════════════════════════════
@@ -1296,46 +1383,31 @@ async function openSOP(id) {
   const body = document.getElementById('sopModalBody');
   const dlBtn = document.getElementById('sopDownloadBtn');
   if(sop.content_type === 'pdf' && sop.file_url) {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const pdfUrl = sop.file_url;
-
-    if(isMobile) {
-      // Mobile browsers can't render PDFs in iframes — show a tap-to-open button instead
-      body.style.padding = '28px 24px';
-      body.innerHTML = `
-        <div style="text-align:center;padding:20px 0;">
-          <div style="font-size:56px;margin-bottom:16px;">📄</div>
-          <div style="font-size:16px;font-weight:700;color:#1e3a5f;margin-bottom:6px;">${sop.title}</div>
-          <div style="font-size:13px;color:#6b7280;margin-bottom:24px;">${sop.file_name || 'PDF Document'}</div>
-          <a href="${pdfUrl}" target="_blank" rel="noopener"
-            style="display:inline-block;background:#0369a1;color:#fff;text-decoration:none;padding:13px 28px;border-radius:12px;font-size:14px;font-weight:700;margin-bottom:12px;">
-            📖 Open PDF
-          </a>
-          <div style="font-size:11px;color:#9ca3af;margin-top:8px;">Opens in your browser's PDF viewer</div>
-        </div>`;
-      dlBtn.style.display = 'block';
-      dlBtn.onclick = () => window.open(pdfUrl, '_blank');
+    // Convert to Blob URL so no raw data/supabase URL is exposed in browser
+    let pdfSrc = sop.file_url;
+    if(sop.file_url.startsWith('data:')) {
+      try {
+        const b64 = sop.file_url.split(',')[1];
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], {type:'application/pdf'});
+        pdfSrc = URL.createObjectURL(blob);
+      } catch(e) { pdfSrc = sop.file_url; }
     } else {
-      // Desktop — render inline iframe
-      let pdfSrc = pdfUrl;
-      if(pdfUrl.startsWith('data:')) {
-        try {
-          const b64 = pdfUrl.split(',')[1];
-          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-          const blob = new Blob([bytes], {type:'application/pdf'});
-          pdfSrc = URL.createObjectURL(blob);
-        } catch(e) { pdfSrc = pdfUrl; }
-      }
-      body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
-      body.style.padding = '0';
-      dlBtn.style.display = 'block';
-      dlBtn.onclick = () => {
-        const a = document.createElement('a');
-        a.href = pdfSrc;
-        a.download = sop.file_name || (sop.title + '.pdf');
-        a.click();
-      };
+      // Fetch remote URL and convert to blob to hide supabase URL
+      try {
+        const resp = await fetch(sop.file_url);
+        const blob = await resp.blob();
+        pdfSrc = URL.createObjectURL(blob);
+      } catch(e) { pdfSrc = sop.file_url; }
     }
+    body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
+    body.style.padding = '0'; dlBtn.style.display='block';
+    dlBtn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = pdfSrc;
+      a.download = sop.file_name || (sop.title + '.pdf');
+      a.click();
+    };
   } else if(sop.content_type === 'text' && sop.content) {
     body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
   } else if(sop.content) {
@@ -1618,6 +1690,201 @@ function postAnnouncement() {
   if(!t){ alert('Please enter a title.'); return; }
   alert('✅ Announcement "'+t+'" published! (Connect Supabase for persistence across all devices.)');
   document.getElementById('annTitle').value=''; document.getElementById('annBody').value='';
+}
+
+// ════════════════════════════════════════════
+// COMMUNITY HELPERS
+// ════════════════════════════════════════════
+let allHelpers = [];
+
+async function loadHelpers() {
+  const el = document.getElementById('helpers-container');
+  if(el) el.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">⏳ Loading helpers…</div>';
+  try {
+    const data = await sbFetch('community_helpers?select=*&order=category.asc,name.asc');
+    allHelpers = data;
+  } catch(e) {
+    allHelpers = [];
+    if(el) el.innerHTML = '<div style="text-align:center;padding:40px;color:#f97316;font-size:13px;">⚠️ Could not load helpers. Check Supabase connection.</div>';
+    return;
+  }
+  renderHelpers();
+  renderAdminHelpers();
+}
+
+function renderHelpers() {
+  const el = document.getElementById('helpers-container');
+  if(!el) return;
+  const q = (document.getElementById('helperSearch')?.value || '').toLowerCase();
+  const filtered = allHelpers.filter(h =>
+    !q ||
+    (h.name||'').toLowerCase().includes(q) ||
+    (h.category||'').toLowerCase().includes(q) ||
+    (h.phone||'').includes(q)
+  );
+  if(!filtered.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">No helpers found.</div>';
+    return;
+  }
+  // Group by category
+  const groups = {};
+  filtered.forEach(h => {
+    const cat = h.category || 'Other';
+    if(!groups[cat]) groups[cat] = [];
+    groups[cat].push(h);
+  });
+  el.innerHTML = Object.entries(groups).map(([cat, items]) => {
+    const uid = 'hcat_' + cat.replace(/[^a-z0-9]/gi,'_');
+    return `
+      <div class="expand-box">
+        <div class="expand-header" onclick="toggleHelperCat('${uid}')">
+          ${cat} <span style="font-size:12px;color:#94a3b8;font-weight:600;margin-left:6px;">${items.length}</span>
+          <span class="plus-icon" id="${uid}_icon" style="margin-left:auto;">+</span>
+        </div>
+        <div class="expand-content" id="${uid}" style="display:none;">
+          ${items.map(h => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#1e3a5f;">${h.name}</div>
+                ${h.clinic ? `<div style="font-size:12px;color:#0369a1;margin-top:1px;">🏥 ${h.clinic}</div>` : ''}
+                ${h.note ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">${h.note}</div>` : ''}
+              </div>
+              <a href="tel:${h.phone}" style="font-size:13px;font-weight:700;color:#0369a1;text-decoration:none;background:#eff6ff;padding:6px 12px;border-radius:8px;">📞 ${h.phone}</a>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleHelperCat(uid) {
+  const el = document.getElementById(uid);
+  const icon = document.getElementById(uid + '_icon');
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  icon.textContent = isOpen ? '+' : '−';
+}
+
+function renderAdminHelpers() {
+  const el = document.getElementById('admin-helper-list');
+  const countEl = document.getElementById('helper-count');
+  if(!el) return;
+  const q = (document.getElementById('helperAdminSearch')?.value || '').toLowerCase();
+  const filtered = allHelpers.filter(h =>
+    !q ||
+    (h.name||'').toLowerCase().includes(q) ||
+    (h.category||'').toLowerCase().includes(q)
+  );
+  if(countEl) countEl.textContent = allHelpers.length;
+  if(!filtered.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:12px;">No helpers yet. Click + Add Helper to get started.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(h => `
+    <div style="background:#fff;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;border:1px solid #e5e7eb;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:2px;">${h.name}</div>
+        ${h.clinic ? `<div style="font-size:11px;color:#0369a1;margin-bottom:2px;">🏥 ${h.clinic}</div>` : ''}
+        <div style="font-size:11px;color:#0369a1;margin-bottom:2px;">${h.category}</div>
+        <div style="font-size:11px;color:#6b7280;">${h.phone}${h.note ? '  ·  ' + h.note : ''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;margin-left:10px;">
+        <button onclick="editHelper('${h.id}')"
+          style="font-size:10px;color:#3b82f6;font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;">Edit</button>
+        <button onclick="deleteHelper('${h.id}',this)"
+          style="font-size:10px;color:#ef4444;font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+async function publishHelper() {
+  const name     = document.getElementById('hName').value.trim();
+  const clinic   = document.getElementById('hClinic').value.trim();
+  const phone    = document.getElementById('hPhone').value.trim();
+  const category = document.getElementById('hCategory').value;
+  const note     = document.getElementById('hNote').value.trim();
+  const msg      = document.getElementById('helperPublishMsg');
+  msg.style.display = 'block';
+
+  if(!name || !phone || !category) {
+    msg.style.color = '#dc2626'; msg.textContent = '⚠️ Name, phone and category are required.'; return;
+  }
+
+  msg.style.color = '#0369a1'; msg.textContent = '⏳ Saving…';
+
+  const record = { name, clinic: clinic || null, phone, category, note: note || null };
+
+  try {
+    const res = await sbFetch('community_helpers', { method:'POST', body: JSON.stringify(record) });
+    const saved = Array.isArray(res) ? res[0] : res;
+    allHelpers.push(saved);
+    allHelpers.sort((a,b) => (a.category+a.name).localeCompare(b.category+b.name));
+    msg.style.color = '#15803d'; msg.textContent = '✅ Helper added and live for all residents!';
+  } catch(e) {
+    // If table doesn't exist yet, show the SQL
+    if(e.message.includes('relation') || e.message.includes('does not exist')) {
+      msg.style.color = '#dc2626';
+      msg.textContent = '⚠️ Table not found. Run the SQL in Admin → Database tab first.';
+      return;
+    }
+    msg.style.color = '#f97316'; msg.textContent = '⚠️ ' + e.message;
+    return;
+  }
+
+  // Reset form
+  document.getElementById('hName').value = '';
+  document.getElementById('hClinic').value = '';
+  document.getElementById('hPhone').value = '';
+  document.getElementById('hCategory').value = '';
+  document.getElementById('hNote').value = '';
+  document.getElementById('newHelperForm').style.display = 'none';
+
+  renderHelpers();
+  renderAdminHelpers();
+  setTimeout(() => { msg.style.display = 'none'; }, 2000);
+}
+
+async function deleteHelper(id, btn) {
+  if(!confirm('Remove this helper from the directory?')) return;
+  try {
+    await sbFetch(`community_helpers?id=eq.${id}`, { method:'DELETE' });
+    allHelpers = allHelpers.filter(h => h.id != id);
+    renderHelpers(); renderAdminHelpers();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+}
+
+function editHelper(id) {
+  const h = allHelpers.find(h => h.id == id);
+  if(!h) return;
+  // Pre-fill the add form with existing values for editing
+  document.getElementById('hName').value    = h.name || '';
+  document.getElementById('hClinic').value  = h.clinic || '';
+  document.getElementById('hPhone').value   = h.phone || '';
+  document.getElementById('hNote').value    = h.note || '';
+  // Set category
+  const sel = document.getElementById('hCategory');
+  for(let i=0; i<sel.options.length; i++) {
+    if(sel.options[i].value === h.category) { sel.selectedIndex = i; break; }
+  }
+  document.getElementById('newHelperForm').style.display = 'block';
+  // Swap publish button to update
+  const pubBtn = document.querySelector('#newHelperForm .form-submit');
+  pubBtn.textContent = '💾 Update Helper';
+  pubBtn.onclick = async () => {
+    await sbFetch(`community_helpers?id=eq.${id}`, {
+      method:'PATCH',
+      body: JSON.stringify({
+        name: document.getElementById('hName').value.trim(),
+        clinic: document.getElementById('hClinic').value.trim() || null,
+        phone: document.getElementById('hPhone').value.trim(),
+        category: document.getElementById('hCategory').value,
+        note: document.getElementById('hNote').value.trim() || null
+      })
+    });
+    await loadHelpers();
+    document.getElementById('newHelperForm').style.display = 'none';
+    pubBtn.textContent = '➕ Add Helper';
+    pubBtn.onclick = publishHelper;
+  };
 }
 
 // ── Expand / collapse ─────────────────────────────────────────────
