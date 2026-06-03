@@ -532,16 +532,21 @@ body{
        COMMUNITY HELPERS PAGE
   ════════════════════════════════════════ -->
   <div class="page" id="page-helpers">
-  <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
+    <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
     <div class="section-title">🩺 Community Helper Directory</div>
     <div class="section-sub">Trusted services and specialists recommended by residents</div>
+
     <!-- Search -->
-    <div style="margin-bottom:16px;">
-      <input id="helperSearch" type="text" placeholder="🔍  Search by name, category or phone…"
+    <div style="margin-bottom:14px;">
+      <input id="helperSearch" type="text" placeholder="🔍  Search by name, specialisation, clinic or phone…"
         style="width:100%;border:1px solid #e5e7eb;border-radius:12px;padding:10px 16px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;"
         oninput="renderHelpers()" />
     </div>
-    <!-- Grouped accordion rendered by JS -->
+
+    <!-- Group Tabs -->
+    <div id="helper-group-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+    <!-- Category accordions for active group -->
     <div id="helpers-container">
       <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">⏳ Loading helpers…</div>
     </div>
@@ -845,14 +850,18 @@ CREATE TABLE IF NOT EXISTS community_helpers (
   clinic text,
   phone text NOT NULL,
   category text NOT NULL,
+  "group" text DEFAULT 'Other',
+  specialisation text,
   note text,
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE community_helpers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public read helpers" ON community_helpers FOR SELECT USING (true);
-CREATE POLICY "Auth insert helpers" ON community_helpers FOR INSERT WITH CHECK (true);
-CREATE POLICY "Auth update helpers" ON community_helpers FOR UPDATE USING (true);
-CREATE POLICY "Auth delete helpers" ON community_helpers FOR DELETE USING (true);</div>
+CREATE POLICY "Public read helpers"   ON community_helpers FOR SELECT USING (true);
+CREATE POLICY "Auth insert helpers"   ON community_helpers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Auth update helpers"   ON community_helpers FOR UPDATE USING (true);
+CREATE POLICY "Auth delete helpers"   ON community_helpers FOR DELETE USING (true);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO authenticated;</div>
           <span class="form-label">Step 3 — Enter your credentials:</span>
           <input class="form-input" id="dbUrl" placeholder="Project URL  (https://xxxx.supabase.co)" />
           <input class="form-input" id="dbKey" placeholder="anon / public API key" />
@@ -901,27 +910,69 @@ CREATE POLICY "Auth delete helpers" ON community_helpers FOR DELETE USING (true)
           <div class="form-row">
             <select class="form-select" id="hCategory" style="margin-bottom:0;grid-column:1/-1;">
               <option value="">Select Category *</option>
-              <option>🦴 Ortho / Spine Specialists</option>
-              <option>👂 ENT Specialists</option>
-              <option>🏥 General Physicians</option>
-              <option>🦷 Dentists</option>
-              <option>👁️ Eye Specialists</option>
-              <option>🧠 Neurologists</option>
-              <option>❤️ Cardiologists</option>
-              <option>🚗 Car Service Centers</option>
-              <option>🏍️ Bike Repair Centers</option>
-              <option>🔧 Plumbers</option>
-              <option>⚡ Electricians</option>
-              <option>🪚 Carpenters</option>
-              <option>🧹 Cleaning Services</option>
-              <option>📚 Home Tutors</option>
-              <option>🐾 Vets / Pet Care</option>
-              <option>💆 Physiotherapists</option>
-              <option>🍱 Tiffin / Home Food</option>
-              <option>📦 Packers & Movers</option>
-              <option>🖥️ IT / Computer Repair</option>
-              <option>Other</option>
+              <optgroup label="🏥 Healthcare">
+                <option value="Healthcare|🏥 General Physicians">🏥 General Physicians</option>
+                <option value="Healthcare|👶 Paediatricians">👶 Paediatricians</option>
+                <option value="Healthcare|🦴 Ortho / Spine Specialists">🦴 Ortho / Spine Specialists</option>
+                <option value="Healthcare|❤️ Cardiologists">❤️ Cardiologists</option>
+                <option value="Healthcare|🧠 Neurologists">🧠 Neurologists</option>
+                <option value="Healthcare|👂 ENT Specialists">👂 ENT Specialists</option>
+                <option value="Healthcare|👁️ Eye Specialists">👁️ Eye Specialists</option>
+                <option value="Healthcare|🦷 Dentists">🦷 Dentists</option>
+                <option value="Healthcare|💆 Physiotherapists">💆 Physiotherapists</option>
+                <option value="Healthcare|🧘 Psychologists / Counsellors">🧘 Psychologists / Counsellors</option>
+                <option value="Healthcare|🩺 Gynaecologists">🩺 Gynaecologists</option>
+                <option value="Healthcare|🩻 Radiologists / Diagnostics">🩻 Radiologists / Diagnostics</option>
+                <option value="Healthcare|💊 Pharmacies">💊 Pharmacies</option>
+                <option value="Healthcare|🐾 Vets / Pet Care">🐾 Vets / Pet Care</option>
+              </optgroup>
+              <optgroup label="🔧 Repairs & Home Services">
+                <option value="Repairs|🔧 Plumbers">🔧 Plumbers</option>
+                <option value="Repairs|⚡ Electricians">⚡ Electricians</option>
+                <option value="Repairs|🪚 Carpenters">🪚 Carpenters</option>
+                <option value="Repairs|❄️ AC Service & Repair">❄️ AC Service & Repair</option>
+                <option value="Repairs|🏠 Painting & Waterproofing">🏠 Painting & Waterproofing</option>
+                <option value="Repairs|🖥️ IT / Computer Repair">🖥️ IT / Computer Repair</option>
+                <option value="Repairs|📱 Mobile Repair">📱 Mobile Repair</option>
+                <option value="Repairs|🚗 Car Service Centers">🚗 Car Service Centers</option>
+                <option value="Repairs|🏍️ Bike Repair Centers">🏍️ Bike Repair Centers</option>
+                <option value="Repairs|🧹 Cleaning Services">🧹 Cleaning Services</option>
+                <option value="Repairs|🐜 Pest Control">🐜 Pest Control</option>
+              </optgroup>
+              <optgroup label="📚 Teaching & Learning">
+                <option value="Teaching|📚 Home Tutors (School)">📚 Home Tutors (School)</option>
+                <option value="Teaching|🎵 Music Classes">🎵 Music Classes</option>
+                <option value="Teaching|🎨 Art & Craft Classes">🎨 Art & Craft Classes</option>
+                <option value="Teaching|💻 Coding & Tech Classes">💻 Coding & Tech Classes</option>
+                <option value="Teaching|🗣️ Language Classes">🗣️ Language Classes</option>
+                <option value="Teaching|🧘 Yoga & Fitness Trainers">🧘 Yoga & Fitness Trainers</option>
+                <option value="Teaching|💃 Dance Classes">💃 Dance Classes</option>
+              </optgroup>
+              <optgroup label="🍽️ Food & Essentials">
+                <option value="Food|🍱 Tiffin / Home Food">🍱 Tiffin / Home Food</option>
+                <option value="Food|🛒 Grocery Delivery">🛒 Grocery Delivery</option>
+                <option value="Food|🎂 Bakers & Home Chefs">🎂 Bakers & Home Chefs</option>
+              </optgroup>
+              <optgroup label="💼 Professional Services">
+                <option value="Professional|💼 Chartered Accountants / Tax Filing">💼 Chartered Accountants / Tax Filing</option>
+                <option value="Professional|⚖️ Legal / Advocates">⚖️ Legal / Advocates</option>
+                <option value="Professional|🏦 Financial Advisors">🏦 Financial Advisors</option>
+                <option value="Professional|🏠 Property / Real Estate">🏠 Property / Real Estate</option>
+                <option value="Professional|📋 Insurance Advisors">📋 Insurance Advisors</option>
+                <option value="Professional|🖊️ Notary / Documentation">🖊️ Notary / Documentation</option>
+              </optgroup>
+              <optgroup label="🚚 Other Services">
+                <option value="Other|📦 Packers & Movers">📦 Packers & Movers</option>
+                <option value="Other|👗 Tailors & Alterations">👗 Tailors & Alterations</option>
+                <option value="Other|📸 Photographers">📸 Photographers</option>
+                <option value="Other|🧺 Laundry Services">🧺 Laundry Services</option>
+                <option value="Other|Other">Other</option>
+              </optgroup>
             </select>
+          </div>
+          <div style="height:8px;"></div>
+          <div class="form-row">
+            <input class="form-input" id="hSpecialisation" placeholder="Specialisation (e.g. Violin, CBSE Maths, GST Filing)" style="margin-bottom:0;grid-column:1/-1;" />
           </div>
           <div style="height:8px;"></div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -1712,48 +1763,123 @@ async function loadHelpers() {
   renderAdminHelpers();
 }
 
+let activeHelperGroup = null;
+
 function renderHelpers() {
-  const el = document.getElementById('helpers-container');
-  if(!el) return;
+  const container  = document.getElementById('helpers-container');
+  const tabsEl     = document.getElementById('helper-group-tabs');
+  if(!container) return;
+
   const q = (document.getElementById('helperSearch')?.value || '').toLowerCase();
+
+  const GROUP_ORDER  = ['Healthcare','Repairs','Teaching','Professional','Food','Other'];
+  const GROUP_LABELS = {
+    Healthcare:   '🏥 Healthcare',
+    Repairs:      '🔧 Repairs & Home Services',
+    Teaching:     '📚 Teaching & Learning',
+    Professional: '💼 Professional Services',
+    Food:         '🍽️ Food & Essentials',
+    Other:        '🚚 Other Services'
+  };
+  const GROUP_COLORS = {
+    Healthcare:   {bg:'#eff6ff', active:'#0369a1'},
+    Repairs:      {bg:'#fff7ed', active:'#c2410c'},
+    Teaching:     {bg:'#faf5ff', active:'#7e22ce'},
+    Professional: {bg:'#f0fdf4', active:'#15803d'},
+    Food:         {bg:'#fefce8', active:'#92400e'},
+    Other:        {bg:'#f8fafc', active:'#475569'}
+  };
+
+  // Filter helpers
   const filtered = allHelpers.filter(h =>
     !q ||
     (h.name||'').toLowerCase().includes(q) ||
+    (h.clinic||'').toLowerCase().includes(q) ||
+    (h.specialisation||'').toLowerCase().includes(q) ||
     (h.category||'').toLowerCase().includes(q) ||
     (h.phone||'').includes(q)
   );
-  if(!filtered.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">No helpers found.</div>';
-    return;
-  }
-  // Group by category
+
+  // Build group → category → helpers
   const groups = {};
   filtered.forEach(h => {
+    const grp = h.group || 'Other';
     const cat = h.category || 'Other';
-    if(!groups[cat]) groups[cat] = [];
-    groups[cat].push(h);
+    if(!groups[grp]) groups[grp] = {};
+    if(!groups[grp][cat]) groups[grp][cat] = [];
+    groups[grp][cat].push(h);
   });
-  el.innerHTML = Object.entries(groups).map(([cat, items]) => {
-    const uid = 'hcat_' + cat.replace(/[^a-z0-9]/gi,'_');
+
+  const availableGroups = GROUP_ORDER.filter(g => groups[g]);
+
+  if(!availableGroups.length) {
+    if(tabsEl) tabsEl.innerHTML = '';
+    container.innerHTML = '<div style="text-align:center;padding:48px;color:#94a3b8;"><div style="font-size:40px;margin-bottom:12px;">🩺</div><p>No helpers found.</p></div>';
+    return;
+  }
+
+  // Set default active group
+  if(!activeHelperGroup || !groups[activeHelperGroup]) {
+    activeHelperGroup = availableGroups[0];
+  }
+
+  // Render group tabs
+  if(tabsEl) {
+    tabsEl.innerHTML = availableGroups.map(grp => {
+      const isActive = grp === activeHelperGroup;
+      const col = GROUP_COLORS[grp] || {bg:'#f8fafc', active:'#475569'};
+      const count = Object.values(groups[grp]).reduce((a,b) => a + b.length, 0);
+      return `
+        <button onclick="setHelperGroup('${grp}')"
+          style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:2px solid ${isActive ? col.active : '#e5e7eb'};background:${isActive ? col.active : '#fff'};color:${isActive ? '#fff' : '#374151'};transition:all .15s;">
+          ${GROUP_LABELS[grp]}
+          <span style="font-size:10px;background:${isActive ? 'rgba(255,255,255,.25)' : '#f3f4f6'};color:${isActive ? '#fff' : '#6b7280'};padding:1px 6px;border-radius:99px;font-weight:700;">${count}</span>
+        </button>`;
+    }).join('');
+  }
+
+  // Render category accordions for active group only
+  const cats = groups[activeHelperGroup] || {};
+  container.innerHTML = Object.entries(cats).map(([cat, items]) => {
+    const cid = 'cat_' + (activeHelperGroup + cat).replace(/[^a-z0-9]/gi,'_');
     return `
-      <div class="expand-box">
-        <div class="expand-header" onclick="toggleHelperCat('${uid}')">
-          ${cat} <span style="font-size:12px;color:#94a3b8;font-weight:600;margin-left:6px;">${items.length}</span>
-          <span class="plus-icon" id="${uid}_icon" style="margin-left:auto;">+</span>
+      <div class="expand-box" style="margin-bottom:10px;">
+        <div onclick="toggleHelperCat('${cid}')"
+          style="display:flex;justify-content:space-between;align-items:center;padding:13px 18px;cursor:pointer;font-size:14px;font-weight:700;color:#1e3a5f;">
+          <span>${cat} <span style="font-size:11px;color:#94a3b8;font-weight:500;margin-left:6px;">${items.length}</span></span>
+          <span id="${cid}_icon" style="color:#94a3b8;font-size:18px;font-weight:400;">+</span>
         </div>
-        <div class="expand-content" id="${uid}" style="display:none;">
+        <div id="${cid}" style="display:none;border-top:1px solid #f1f5f9;">
           ${items.map(h => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-              <div>
-                <div style="font-size:13px;font-weight:600;color:#1e3a5f;">${h.name}</div>
-                ${h.clinic ? `<div style="font-size:12px;color:#0369a1;margin-top:1px;">🏥 ${h.clinic}</div>` : ''}
-                ${h.note ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">${h.note}</div>` : ''}
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:12px 18px;border-bottom:1px solid #f9fafb;gap:12px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#1e3a5f;">${h.name}</div>
+                ${h.specialisation ? `<div style="font-size:12px;color:#7e22ce;font-weight:600;margin-top:2px;">✦ ${h.specialisation}</div>` : ''}
+                ${h.clinic         ? `<div style="font-size:12px;color:#0369a1;margin-top:2px;">🏥 ${h.clinic}</div>` : ''}
+                ${h.note           ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">💬 ${h.note}</div>` : ''}
               </div>
-              <a href="tel:${h.phone}" style="font-size:13px;font-weight:700;color:#0369a1;text-decoration:none;background:#eff6ff;padding:6px 12px;border-radius:8px;">📞 ${h.phone}</a>
+              <a href="tel:${h.phone}"
+                style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#0369a1;text-decoration:none;background:#eff6ff;border:1px solid #bae6fd;padding:8px 12px;border-radius:10px;white-space:nowrap;flex-shrink:0;">
+                📞 ${h.phone}
+              </a>
             </div>`).join('')}
         </div>
       </div>`;
   }).join('');
+}
+
+function setHelperGroup(grp) {
+  activeHelperGroup = grp;
+  renderHelpers();
+}
+
+function toggleHelperGroup(gid) {
+  const el   = document.getElementById(gid);
+  const icon = document.getElementById(gid + '_icon');
+  if(!el) return;
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  if(icon) icon.textContent = open ? '+' : '−';
 }
 
 function toggleHelperCat(uid) {
@@ -1783,6 +1909,7 @@ function renderAdminHelpers() {
     <div style="background:#fff;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;border:1px solid #e5e7eb;">
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:2px;">${h.name}</div>
+        ${h.specialisation ? `<div style="font-size:11px;color:#7e22ce;margin-bottom:2px;">✦ ${h.specialisation}</div>` : ''}
         ${h.clinic ? `<div style="font-size:11px;color:#0369a1;margin-bottom:2px;">🏥 ${h.clinic}</div>` : ''}
         <div style="font-size:11px;color:#0369a1;margin-bottom:2px;">${h.category}</div>
         <div style="font-size:11px;color:#6b7280;">${h.phone}${h.note ? '  ·  ' + h.note : ''}</div>
@@ -1800,18 +1927,20 @@ async function publishHelper() {
   const name     = document.getElementById('hName').value.trim();
   const clinic   = document.getElementById('hClinic').value.trim();
   const phone    = document.getElementById('hPhone').value.trim();
-  const category = document.getElementById('hCategory').value;
+  const catVal   = document.getElementById('hCategory').value;
   const note     = document.getElementById('hNote').value.trim();
   const msg      = document.getElementById('helperPublishMsg');
   msg.style.display = 'block';
 
-  if(!name || !phone || !category) {
+  if(!name || !phone || !catVal) {
     msg.style.color = '#dc2626'; msg.textContent = '⚠️ Name, phone and category are required.'; return;
   }
 
+  const [group, category] = catVal.includes('|') ? catVal.split('|') : ['Other', catVal];
+  const specialisation = document.getElementById('hSpecialisation').value.trim();
   msg.style.color = '#0369a1'; msg.textContent = '⏳ Saving…';
 
-  const record = { name, clinic: clinic || null, phone, category, note: note || null };
+  const record = { name, clinic: clinic || null, phone, group, category, specialisation: specialisation || null, note: note || null };
 
   try {
     const res = await sbFetch('community_helpers', { method:'POST', body: JSON.stringify(record) });
@@ -1834,6 +1963,7 @@ async function publishHelper() {
   document.getElementById('hName').value = '';
   document.getElementById('hClinic').value = '';
   document.getElementById('hPhone').value = '';
+  document.getElementById('hSpecialisation').value = '';
   document.getElementById('hCategory').value = '';
   document.getElementById('hNote').value = '';
   document.getElementById('newHelperForm').style.display = 'none';
@@ -1856,10 +1986,11 @@ function editHelper(id) {
   const h = allHelpers.find(h => h.id == id);
   if(!h) return;
   // Pre-fill the add form with existing values for editing
-  document.getElementById('hName').value    = h.name || '';
-  document.getElementById('hClinic').value  = h.clinic || '';
-  document.getElementById('hPhone').value   = h.phone || '';
-  document.getElementById('hNote').value    = h.note || '';
+  document.getElementById('hName').value           = h.name || '';
+  document.getElementById('hClinic').value         = h.clinic || '';
+  document.getElementById('hPhone').value          = h.phone || '';
+  document.getElementById('hSpecialisation').value = h.specialisation || '';
+  document.getElementById('hNote').value           = h.note || '';
   // Set category
   const sel = document.getElementById('hCategory');
   for(let i=0; i<sel.options.length; i++) {
@@ -1873,11 +2004,12 @@ function editHelper(id) {
     await sbFetch(`community_helpers?id=eq.${id}`, {
       method:'PATCH',
       body: JSON.stringify({
-        name: document.getElementById('hName').value.trim(),
-        clinic: document.getElementById('hClinic').value.trim() || null,
-        phone: document.getElementById('hPhone').value.trim(),
-        category: document.getElementById('hCategory').value,
-        note: document.getElementById('hNote').value.trim() || null
+        name:           document.getElementById('hName').value.trim(),
+        clinic:         document.getElementById('hClinic').value.trim() || null,
+        phone:          document.getElementById('hPhone').value.trim(),
+        category:       document.getElementById('hCategory').value,
+        specialisation: document.getElementById('hSpecialisation').value.trim() || null,
+        note:           document.getElementById('hNote').value.trim() || null
       })
     });
     await loadHelpers();
