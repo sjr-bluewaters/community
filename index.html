@@ -322,6 +322,9 @@ body{
       <div class="qtile" style="background:#ecfeff;border-color:#a5f3fc;" onclick="showPage('amenities')">
         <div class="qi">🏊</div><div class="ql" style="color:#0e7490;">Amenities</div>
       </div>
+      <div class="qtile" style="background:#f0fdf4;border-color:#bbf7d0;" onclick="showPage('nearby')">
+        <div class="qi">📍</div><div class="ql" style="color:#15803d;">Nearby</div>
+      </div>
     </div>
 
     <!-- Home grid: left=announcements+SOPs, right=blocks+events -->
@@ -394,7 +397,48 @@ body{
           <div class="card-row"><div><h4>Security Gate</h4><p>+91 98440 00001</p></div></div>
           <button class="btn" style="width:100%;margin-top:12px;background:#dc2626;" onclick="showPage('emergency')">View All Emergency Contacts →</button>
         </div>
+
+        <!-- Nearby Hospitals quick card -->
+        <div class="card" style="background:linear-gradient(135deg,#f0fdf4,#f7fef9);">
+          <h2 style="display:flex;justify-content:space-between;align-items:center;">
+            🏥 Nearby Hospitals
+            <button class="btn btn-sm" onclick="showPage('nearby')" style="font-size:11px;padding:5px 12px;background:#059669;">View All →</button>
+          </h2>
+          <div id="home-hospitals-list">
+            <div class="card-row"><div style="flex:1;"><h4>Narayana Health City</h4><p>Bommasandra · ~3 km</p></div><a href="tel:+918067899999" style="font-size:11px;font-weight:700;color:#059669;text-decoration:none;background:#dcfce7;padding:5px 10px;border-radius:8px;white-space:nowrap;">📞 Call</a></div>
+            <div class="card-row"><div style="flex:1;"><h4>Sparsh Hospital</h4><p>Infantry Road · ~4 km</p></div><a href="tel:+918041500600" style="font-size:11px;font-weight:700;color:#059669;text-decoration:none;background:#dcfce7;padding:5px 10px;border-radius:8px;white-space:nowrap;">📞 Call</a></div>
+            <div class="card-row"><div style="flex:1;"><h4>Apollo Clinic</h4><p>Parappana Agrahara · ~1 km</p></div><a href="tel:+918041234567" style="font-size:11px;font-weight:700;color:#059669;text-decoration:none;background:#dcfce7;padding:5px 10px;border-radius:8px;white-space:nowrap;">📞 Call</a></div>
+            <div class="card-row" style="border-bottom:none;"><div style="flex:1;"><h4>Columbia Asia</h4><p>Hebbal · ~7 km</p></div><a href="tel:+918071000000" style="font-size:11px;font-weight:700;color:#059669;text-decoration:none;background:#dcfce7;padding:5px 10px;border-radius:8px;white-space:nowrap;">📞 Call</a></div>
+          </div>
+        </div>
+
+        <!-- Nearby Schools quick card -->
+        <div class="card" style="background:linear-gradient(135deg,#faf5ff,#fdf4ff);">
+          <h2 style="display:flex;justify-content:space-between;align-items:center;">
+            🏫 Nearby Schools
+            <button class="btn btn-sm" onclick="showPage('nearby')" style="font-size:11px;padding:5px 12px;background:#7e22ce;">View All →</button>
+          </h2>
+          <div id="home-schools-list">
+            <div class="card-row"><div style="flex:1;"><h4>Inventure Academy</h4><p>Whitefield · ~4 km · IB / IGCSE</p></div><a href="https://maps.google.com/?q=Inventure+Academy+Whitefield+Bangalore" target="_blank" style="font-size:11px;font-weight:700;color:#7e22ce;text-decoration:none;background:#f3e8ff;padding:5px 10px;border-radius:8px;white-space:nowrap;">🗺 Map</a></div>
+            <div class="card-row"><div style="flex:1;"><h4>Ryan International</h4><p>Sarjapur Road · ~3 km · CBSE</p></div><a href="https://maps.google.com/?q=Ryan+International+School+Sarjapur+Bangalore" target="_blank" style="font-size:11px;font-weight:700;color:#7e22ce;text-decoration:none;background:#f3e8ff;padding:5px 10px;border-radius:8px;white-space:nowrap;">🗺 Map</a></div>
+            <div class="card-row"><div style="flex:1;"><h4>DPS Bangalore East</h4><p>Whitefield · ~5 km · CBSE</p></div><a href="https://maps.google.com/?q=DPS+Bangalore+East" target="_blank" style="font-size:11px;font-weight:700;color:#7e22ce;text-decoration:none;background:#f3e8ff;padding:5px 10px;border-radius:8px;white-space:nowrap;">🗺 Map</a></div>
+            <div class="card-row" style="border-bottom:none;"><div style="flex:1;"><h4>Orchids International</h4><p>Electronic City · ~2 km · CBSE</p></div><a href="https://maps.google.com/?q=Orchids+International+School+Electronic+City" target="_blank" style="font-size:11px;font-weight:700;color:#7e22ce;text-decoration:none;background:#f3e8ff;padding:5px 10px;border-radius:8px;white-space:nowrap;">🗺 Map</a></div>
+          </div>
+        </div>
+
       </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       NEARBY PAGE
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-nearby">
+    <div style="padding:10px 20px 0;"><button onclick="showPage('home')" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#1e3a5f;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);">← Home</button></div>
+    <div class="section-title">📍 Nearby Places</div>
+    <div class="section-sub">Hospitals, schools and essential services near SJR Bluewaters</div>
+    <div id="nearby-page-container">
+      <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">⏳ Loading…</div>
     </div>
   </div>
 
@@ -508,23 +552,8 @@ body{
       <p>🆘 In a life-threatening emergency call 112 immediately</p>
       <button>📞 CALL 112 NOW</button>
     </div>
-    <div class="panel-grid">
-      <div class="info-box">
-        <h3>🚔 National Emergency</h3>
-        <p>Police: 100<br>Ambulance: 108<br>Fire: 101<br>Women Helpline: 1091<br>Disaster Mgmt: 1078</p>
-      </div>
-      <div class="info-box">
-        <h3>🏥 Nearby Hospitals</h3>
-        <p>Narayana Health: +91 9876543210<br>Sparsh Hospital: +91 9988776655<br>Apollo Clinic: +91 9123456780<br>Columbia Asia: +91 80 7100 0000</p>
-      </div>
-      <div class="info-box">
-        <h3>🏢 Society Contacts</h3>
-        <p>Security Gate: +91 98440 00001<br>Society Manager: +91 98440 00002<br>Maintenance: +91 98440 00003<br>MC President: +91 98440 00004</p>
-      </div>
-      <div class="info-box">
-        <h3>⚡ Utility Helplines</h3>
-        <p>BESCOM (Electricity): 1912<br>BWSSB (Water): 1916<br>Gas Leak (IGL): 1906<br>Pest Control: +91 98440 00005</p>
-      </div>
+    <div id="emergency-page-container">
+      <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">⏳ Loading…</div>
     </div>
   </div>
 
@@ -656,6 +685,8 @@ body{
       <button class="atab" onclick="showATab('aEvents',this)">Events</button>
       <button class="atab" onclick="showATab('aDB',this)">Database</button>
       <button class="atab" onclick="showATab('aHelpers',this);loadHelpers()">Helpers</button>
+      <button class="atab" onclick="showATab('aNearby',this);loadNearby()">Nearby</button>
+      <button class="atab" onclick="showATab('aEmergency',this);loadEmergency()">Emergency</button>
       <button class="atab" onclick="showATab('aFeedback',this);loadFeedback()">Feedback</button>
     </div>
     <div class="admin-body">
@@ -861,7 +892,26 @@ CREATE POLICY "Auth insert helpers"   ON community_helpers FOR INSERT WITH CHECK
 CREATE POLICY "Auth update helpers"   ON community_helpers FOR UPDATE USING (true);
 CREATE POLICY "Auth delete helpers"   ON community_helpers FOR DELETE USING (true);
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO authenticated;</div>
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO authenticated;
+
+-- Nearby Places table
+CREATE TABLE IF NOT EXISTS nearby_places (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  type text NOT NULL,
+  address text,
+  distance text,
+  phone text,
+  maps_url text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE nearby_places ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read nearby"   ON nearby_places FOR SELECT USING (true);
+CREATE POLICY "Auth insert nearby"   ON nearby_places FOR INSERT WITH CHECK (true);
+CREATE POLICY "Auth update nearby"   ON nearby_places FOR UPDATE USING (true);
+CREATE POLICY "Auth delete nearby"   ON nearby_places FOR DELETE USING (true);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.nearby_places TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.nearby_places TO authenticated;</div>
           <span class="form-label">Step 3 — Enter your credentials:</span>
           <input class="form-input" id="dbUrl" placeholder="Project URL  (https://xxxx.supabase.co)" />
           <input class="form-input" id="dbKey" placeholder="anon / public API key" />
@@ -947,6 +997,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO authenticate
                 <option value="Teaching|🗣️ Language Classes">🗣️ Language Classes</option>
                 <option value="Teaching|🧘 Yoga & Fitness Trainers">🧘 Yoga & Fitness Trainers</option>
                 <option value="Teaching|💃 Dance Classes">💃 Dance Classes</option>
+                <option value="Teaching|🚗 Driving Schools">🚗 Driving Schools</option>
               </optgroup>
               <optgroup label="🍽️ Food & Essentials">
                 <option value="Food|🍱 Tiffin / Home Food">🍱 Tiffin / Home Food</option>
@@ -994,6 +1045,100 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.community_helpers TO authenticate
         <div id="admin-helper-list"><div style="font-size:12px;color:#94a3b8;padding:8px;">Loading…</div></div>
       </div>
 
+      <!-- NEARBY ADMIN -->
+      <div class="asection" id="aNearby">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <strong style="font-size:14px;color:#1e3a5f;">📍 Manage Nearby Places</strong>
+          <button class="btn btn-sm" onclick="document.getElementById('newNearbyForm').style.display='block'">+ Add Place</button>
+        </div>
+
+        <!-- Add form -->
+        <div id="newNearbyForm" style="display:none;background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:16px;">
+          <span class="form-label">Add Nearby Place</span>
+          <div class="form-row">
+            <input class="form-input" id="nName"     placeholder="Place Name *"          style="margin-bottom:0;" />
+            <select class="form-select"  id="nType"                                        style="margin-bottom:0;">
+              <option value="">Type *</option>
+              <option value="hospital">🏥 Hospital / Clinic</option>
+              <option value="school">🏫 School</option>
+              <option value="pharmacy">💊 Pharmacy</option>
+              <option value="bank">🏦 Bank / ATM</option>
+              <option value="grocery">🛒 Grocery</option>
+              <option value="restaurant">🍽️ Restaurant</option>
+              <option value="other">📍 Other</option>
+            </select>
+          </div>
+          <div style="height:8px;"></div>
+          <div class="form-row">
+            <input class="form-input" id="nDistance" placeholder="Distance  (e.g. ~2 km)" style="margin-bottom:0;" />
+            <input class="form-input" id="nPhone"    placeholder="Phone (optional)"        style="margin-bottom:0;" />
+          </div>
+          <div style="height:8px;"></div>
+          <input class="form-input"   id="nAddress"  placeholder="Area / Address  (e.g. Parappana Agrahara)" />
+          <input class="form-input"   id="nMaps"     placeholder="Google Maps link (optional)" />
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="form-submit" onclick="publishNearby()" style="flex:1;">➕ Add Place</button>
+            <button onclick="document.getElementById('newNearbyForm').style.display='none'"
+              style="padding:10px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;">Cancel</button>
+          </div>
+          <div id="nearbyPublishMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <!-- Search -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input id="nearbyAdminSearch" type="text" placeholder="🔍 Search…"
+            style="flex:1;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;"
+            oninput="renderAdminNearby()" />
+        </div>
+
+        <span class="form-label">Published Places (<span id="nearby-count">0</span>)</span>
+        <div id="admin-nearby-list"><div style="font-size:12px;color:#94a3b8;padding:8px;">Loading…</div></div>
+      </div>
+
+      <!-- EMERGENCY ADMIN -->
+      <div class="asection" id="aEmergency">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <strong style="font-size:14px;color:#1e3a5f;">🚨 Manage Emergency Contacts</strong>
+          <button class="btn btn-sm" onclick="document.getElementById('newEmergencyForm').style.display='block'" style="background:#dc2626;">+ Add Contact</button>
+        </div>
+
+        <div id="newEmergencyForm" style="display:none;background:#fff;border-radius:14px;padding:18px;border:1px solid #e5e7eb;margin-bottom:16px;">
+          <span class="form-label">Add / Edit Contact</span>
+          <div class="form-row">
+            <input class="form-input" id="ecLabel"    placeholder="Label *  (e.g. Security Gate)"  style="margin-bottom:0;" />
+            <input class="form-input" id="ecPhone"    placeholder="Phone Number *"                  style="margin-bottom:0;" />
+          </div>
+          <div style="height:8px;"></div>
+          <div class="form-row">
+            <select class="form-select" id="ecCategory" style="margin-bottom:0;">
+              <option value="">Category *</option>
+              <option value="Society">🏢 Society</option>
+              <option value="National">🚔 National Emergency</option>
+              <option value="Hospital">🏥 Hospital</option>
+              <option value="Utility">⚡ Utility</option>
+              <option value="Other">📞 Other</option>
+            </select>
+            <input class="form-input" id="ecNote" placeholder="Note (optional)" style="margin-bottom:0;" />
+          </div>
+          <div style="height:8px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="form-submit" id="ecSubmitBtn" onclick="publishEmergency()" style="flex:1;background:#dc2626;">➕ Add Contact</button>
+            <button onclick="document.getElementById('newEmergencyForm').style.display='none'"
+              style="padding:10px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;">Cancel</button>
+          </div>
+          <div id="emergencyPublishMsg" style="margin-top:8px;font-size:12px;display:none;"></div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <input id="emergencyAdminSearch" type="text" placeholder="🔍 Search contacts…"
+            style="flex:1;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;"
+            oninput="renderAdminEmergency()" />
+        </div>
+
+        <span class="form-label">Contacts (<span id="emergency-count">0</span>)</span>
+        <div id="admin-emergency-list"><div style="font-size:12px;color:#94a3b8;padding:8px;">Loading…</div></div>
+      </div>
+
     </div>
   </div>
 </div><!-- end admin modal -->
@@ -1030,6 +1175,7 @@ function showPage(id) {
   window.scrollTo({top:0,behavior:'smooth'});
   if(id === 'sops') loadSOPs();
   if(id === 'helpers') loadHelpers();
+  if(id === 'nearby') loadNearby();
 }
 
 // ════════════════════════════════════════════
@@ -1744,8 +1890,201 @@ function postAnnouncement() {
 }
 
 // ════════════════════════════════════════════
-// COMMUNITY HELPERS
+// NEARBY PLACES
 // ════════════════════════════════════════════
+const NEARBY_TYPE_META = {
+  hospital:   { label:'🏥 Hospitals & Clinics',  btnBg:'#dcfce7', btnColor:'#059669', btnText:'📞 Call',  linkType:'phone' },
+  school:     { label:'🏫 Schools',               btnBg:'#f3e8ff', btnColor:'#7e22ce', btnText:'🗺 Map',   linkType:'maps'  },
+  pharmacy:   { label:'💊 Pharmacies',            btnBg:'#dcfce7', btnColor:'#059669', btnText:'📞 Call',  linkType:'phone' },
+  bank:       { label:'🏦 Banks & ATMs',          btnBg:'#dbeafe', btnColor:'#1d4ed8', btnText:'🗺 Map',   linkType:'maps'  },
+  grocery:    { label:'🛒 Grocery Stores',        btnBg:'#fef9c3', btnColor:'#854d0e', btnText:'🗺 Map',   linkType:'maps'  },
+  restaurant: { label:'🍽️ Restaurants',           btnBg:'#fef9c3', btnColor:'#854d0e', btnText:'🗺 Map',   linkType:'maps'  },
+  other:      { label:'📍 Other',                 btnBg:'#f3f4f6', btnColor:'#374151', btnText:'🗺 Map',   linkType:'maps'  },
+};
+
+const TYPE_ORDER = ['hospital','school','pharmacy','bank','grocery','restaurant','other'];
+
+// Seed data — shown as fallback if Supabase has no rows yet
+const SEED_NEARBY = [
+  {id:'n1', name:'Narayana Health City',  type:'hospital', address:'Bommasandra',         distance:'~3 km', phone:'+918067899999', maps_url:''},
+  {id:'n2', name:'Sparsh Hospital',       type:'hospital', address:'Infantry Road',        distance:'~4 km', phone:'+918041500600', maps_url:''},
+  {id:'n3', name:'Apollo Clinic',         type:'hospital', address:'Parappana Agrahara',   distance:'~1 km', phone:'+918041234567', maps_url:''},
+  {id:'n4', name:'Columbia Asia',         type:'hospital', address:'Hebbal',               distance:'~7 km', phone:'+918071000000', maps_url:''},
+  {id:'n5', name:'Inventure Academy',     type:'school',   address:'Whitefield',           distance:'~4 km', phone:'', maps_url:'https://maps.google.com/?q=Inventure+Academy+Whitefield+Bangalore'},
+  {id:'n6', name:'Ryan International',    type:'school',   address:'Sarjapur Road',        distance:'~3 km', phone:'', maps_url:'https://maps.google.com/?q=Ryan+International+School+Sarjapur+Bangalore'},
+  {id:'n7', name:'DPS Bangalore East',    type:'school',   address:'Whitefield',           distance:'~5 km', phone:'', maps_url:'https://maps.google.com/?q=DPS+Bangalore+East'},
+  {id:'n8', name:'Orchids International', type:'school',   address:'Electronic City',      distance:'~2 km', phone:'', maps_url:'https://maps.google.com/?q=Orchids+International+School+Electronic+City'},
+];
+
+let allNearby = [];
+
+async function loadNearby() {
+  try {
+    const data = await sbFetch('nearby_places?select=*&order=type.asc,name.asc');
+    allNearby = data.length ? data : SEED_NEARBY;
+  } catch(e) {
+    allNearby = SEED_NEARBY;
+  }
+  renderNearbyPage();
+  renderAdminNearby();
+  renderHomeNearby();
+}
+
+function renderNearbyPage() {
+  const el = document.getElementById('nearby-page-container');
+  if(!el) return;
+
+  const groups = {};
+  allNearby.forEach(p => {
+    if(!groups[p.type]) groups[p.type] = [];
+    groups[p.type].push(p);
+  });
+
+  el.innerHTML = TYPE_ORDER.filter(t => groups[t]).map(type => {
+    const meta  = NEARBY_TYPE_META[type];
+    const items = groups[type];
+    return `
+      <div class="card" style="margin-bottom:16px;">
+        <h2>${meta.label}</h2>
+        ${items.map((p,i) => `
+          <div class="card-row" ${i===items.length-1?'style="border-bottom:none;"':''}>
+            <div style="flex:1;">
+              <h4>${p.name}</h4>
+              <p>${[p.address, p.distance].filter(Boolean).join(' · ')}</p>
+            </div>
+            ${meta.linkType==='phone' && p.phone
+              ? `<a href="tel:${p.phone}" style="font-size:11px;font-weight:700;color:${meta.btnColor};text-decoration:none;background:${meta.btnBg};padding:5px 10px;border-radius:8px;white-space:nowrap;">${meta.btnText}</a>`
+              : p.maps_url
+              ? `<a href="${p.maps_url}" target="_blank" style="font-size:11px;font-weight:700;color:${meta.btnColor};text-decoration:none;background:${meta.btnBg};padding:5px 10px;border-radius:8px;white-space:nowrap;">${meta.btnText}</a>`
+              : ''}
+          </div>`).join('')}
+      </div>`;
+  }).join('');
+}
+
+function renderHomeNearby() {
+  // Re-render the home page quick-reference cards from live data
+  const hospitals = allNearby.filter(p => p.type === 'hospital').slice(0,4);
+  const schools   = allNearby.filter(p => p.type === 'school').slice(0,4);
+
+  const hEl = document.getElementById('home-hospitals-list');
+  const sEl = document.getElementById('home-schools-list');
+
+  if(hEl) hEl.innerHTML = hospitals.map((p,i) => `
+    <div class="card-row" ${i===hospitals.length-1?'style="border-bottom:none;"':''}>
+      <div style="flex:1;"><h4>${p.name}</h4><p>${[p.address,p.distance].filter(Boolean).join(' · ')}</p></div>
+      ${p.phone ? `<a href="tel:${p.phone}" style="font-size:11px;font-weight:700;color:#059669;text-decoration:none;background:#dcfce7;padding:5px 10px;border-radius:8px;white-space:nowrap;">📞 Call</a>` : ''}
+    </div>`).join('');
+
+  if(sEl) sEl.innerHTML = schools.map((p,i) => `
+    <div class="card-row" ${i===schools.length-1?'style="border-bottom:none;"':''}>
+      <div style="flex:1;"><h4>${p.name}</h4><p>${[p.address,p.distance].filter(Boolean).join(' · ')}</p></div>
+      ${p.maps_url ? `<a href="${p.maps_url}" target="_blank" style="font-size:11px;font-weight:700;color:#7e22ce;text-decoration:none;background:#f3e8ff;padding:5px 10px;border-radius:8px;white-space:nowrap;">🗺 Map</a>` : ''}
+    </div>`).join('');
+}
+
+function renderAdminNearby() {
+  const el      = document.getElementById('admin-nearby-list');
+  const countEl = document.getElementById('nearby-count');
+  if(!el) return;
+  const q = (document.getElementById('nearbyAdminSearch')?.value || '').toLowerCase();
+  const filtered = allNearby.filter(p =>
+    !q || (p.name||'').toLowerCase().includes(q) || (p.type||'').includes(q)
+  );
+  if(countEl) countEl.textContent = allNearby.length;
+  if(!filtered.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:8px;">No places yet.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(p => {
+    const meta = NEARBY_TYPE_META[p.type] || NEARBY_TYPE_META.other;
+    return `
+      <div style="background:#fff;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;border:1px solid #e5e7eb;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:2px;">${p.name}</div>
+          <div style="font-size:11px;color:#0369a1;margin-bottom:2px;">${meta.label}</div>
+          <div style="font-size:11px;color:#6b7280;">${[p.address,p.distance,p.phone].filter(Boolean).join(' · ')}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;margin-left:10px;">
+          <button onclick="editNearby('${p.id}')"   style="font-size:10px;color:#3b82f6;font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;">Edit</button>
+          <button onclick="deleteNearby('${p.id}')" style="font-size:10px;color:#ef4444;font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;">Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function publishNearby() {
+  const name     = document.getElementById('nName').value.trim();
+  const type     = document.getElementById('nType').value;
+  const distance = document.getElementById('nDistance').value.trim();
+  const phone    = document.getElementById('nPhone').value.trim();
+  const address  = document.getElementById('nAddress').value.trim();
+  const maps_url = document.getElementById('nMaps').value.trim();
+  const msg      = document.getElementById('nearbyPublishMsg');
+  msg.style.display = 'block';
+
+  if(!name || !type) { msg.style.color='#dc2626'; msg.textContent='⚠️ Name and type are required.'; return; }
+  msg.style.color='#0369a1'; msg.textContent='⏳ Saving…';
+
+  const record = { name, type, distance:distance||null, phone:phone||null, address:address||null, maps_url:maps_url||null };
+  try {
+    const res  = await sbFetch('nearby_places', { method:'POST', body: JSON.stringify(record) });
+    const saved = Array.isArray(res) ? res[0] : res;
+    allNearby.push(saved);
+    msg.style.color='#15803d'; msg.textContent='✅ Place added and live for all residents!';
+  } catch(e) {
+    if(e.message.includes('relation') || e.message.includes('does not exist')) {
+      msg.style.color='#dc2626'; msg.textContent='⚠️ Table not found. Run the SQL in Admin → Database tab first.'; return;
+    }
+    msg.style.color='#f97316'; msg.textContent='⚠️ ' + e.message; return;
+  }
+
+  ['nName','nDistance','nPhone','nAddress','nMaps'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('nType').value='';
+  document.getElementById('newNearbyForm').style.display='none';
+  renderNearbyPage(); renderAdminNearby(); renderHomeNearby();
+  setTimeout(() => { msg.style.display='none'; }, 2000);
+}
+
+async function deleteNearby(id) {
+  if(!confirm('Remove this place?')) return;
+  if(!String(id).startsWith('n')) {
+    try { await sbFetch(`nearby_places?id=eq.${id}`, { method:'DELETE' }); } catch(e) { alert('Delete failed: '+e.message); return; }
+  }
+  allNearby = allNearby.filter(p => p.id != id);
+  renderNearbyPage(); renderAdminNearby(); renderHomeNearby();
+}
+
+function editNearby(id) {
+  const p = allNearby.find(p => p.id == id);
+  if(!p) return;
+  document.getElementById('nName').value     = p.name     || '';
+  document.getElementById('nDistance').value = p.distance || '';
+  document.getElementById('nPhone').value    = p.phone    || '';
+  document.getElementById('nAddress').value  = p.address  || '';
+  document.getElementById('nMaps').value     = p.maps_url || '';
+  const sel = document.getElementById('nType');
+  for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===p.type) { sel.selectedIndex=i; break; }
+  document.getElementById('newNearbyForm').style.display='block';
+
+  const btn = document.querySelector('#newNearbyForm .form-submit');
+  btn.textContent = '💾 Update Place';
+  btn.onclick = async () => {
+    try {
+      await sbFetch(`nearby_places?id=eq.${id}`, { method:'PATCH', body: JSON.stringify({
+        name:     document.getElementById('nName').value.trim(),
+        type:     document.getElementById('nType').value,
+        distance: document.getElementById('nDistance').value.trim()||null,
+        phone:    document.getElementById('nPhone').value.trim()||null,
+        address:  document.getElementById('nAddress').value.trim()||null,
+        maps_url: document.getElementById('nMaps').value.trim()||null
+      })});
+      await loadNearby();
+      document.getElementById('newNearbyForm').style.display='none';
+      btn.textContent='➕ Add Place'; btn.onclick=publishNearby;
+    } catch(e) { alert('Update failed: '+e.message); }
+  };
+}
 let allHelpers = [];
 
 async function loadHelpers() {
@@ -2163,6 +2502,7 @@ async function checkExistingSession(){
   updateDBStatus();
   updateDBConnectionStatus();
   loadSOPs();
+  loadNearby();
 })();
 // ════════════════════════════════════════════
 // SOP FEEDBACK
