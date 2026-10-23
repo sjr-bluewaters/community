@@ -1593,18 +1593,54 @@ async function openSOP(id) {
       // Fetch remote URL and convert to blob to hide supabase URL
       try {
         const resp = await fetch(sop.file_url);
+        if (!resp.ok) throw new Error('PDF could not be loaded');
         const blob = await resp.blob();
         pdfSrc = URL.createObjectURL(blob);
       } catch(e) { pdfSrc = sop.file_url; }
     }
-    body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
-    body.style.padding = '0'; dlBtn.style.display='block';
-    dlBtn.onclick = () => {
-      const a = document.createElement('a');
-      a.href = pdfSrc;
-      a.download = sop.file_name || (sop.title + '.pdf');
-      a.click();
-    };
+    
+const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+if (isMobile) {
+  // Mobile: show a button instead of embedded PDF
+  body.innerHTML = '';
+  body.style.padding = '24px';
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'text-align:center;padding:35px 10px;';
+
+  const message = document.createElement('p');
+  message.textContent = 'Tap below to view this SOP document.';
+  message.style.cssText = 'font-size:16px;margin-bottom:24px;';
+
+  const viewBtn = document.createElement('a');
+  viewBtn.href = sop.file_url.startsWith('https://')
+  ? sop.file_url
+  : pdfSrc;
+  viewBtn.target = '_blank';
+  viewBtn.rel = 'noopener noreferrer';
+  viewBtn.textContent = '📄 View PDF';
+  viewBtn.style.cssText = 'display:block;background:#17456b;color:white;padding:16px 24px;border-radius:12px;text-decoration:none;font-size:17px;font-weight:bold;';
+
+  wrapper.appendChild(message);
+  wrapper.appendChild(viewBtn);
+  body.appendChild(wrapper);
+} else {
+  // Desktop: retain existing embedded PDF viewer
+  body.innerHTML = `<iframe class="sop-pdf-frame" src="${pdfSrc}" title="${sop.title}"></iframe>`;
+  body.style.padding = '0';
+}
+
+// Keep existing Download functionality
+dlBtn.style.display = 'block';
+dlBtn.onclick = () => {
+  const a = document.createElement('a');
+  a.href = pdfSrc;
+  a.download = sop.file_name || (sop.title + '.pdf');
+  a.click();
+};
+
+  
   } else if(sop.content_type === 'text' && sop.content) {
     body.innerHTML = sop.content; body.style.padding='28px 30px'; dlBtn.style.display='none';
   } else if(sop.content) {
