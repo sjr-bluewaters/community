@@ -2782,24 +2782,50 @@ function filterFeedbackByCategory(cat) {
     </div>`).join('');
 }
 
+
 function downloadFeedbackCSV() {
   const items = window.fbAllItems || [];
-  if(!items.length) return;
-  const headers = ['SOP Title','Comment','Block','Name','Flat No','Date'];
+  if (!items.length) return;
+
+  const headers = ['SOP Title', 'Comment', 'Block', 'Name', 'Flat No', 'Date'];
+
   const rows = items.map(i => [
     i.sop_title || '',
-    (i.comment || '').replace(/,/g,'；'),
+    i.comment || '',
     i.block || '',
     i.member_name || '',
     i.flat_no || '',
-    new Date(i.created_at).toLocaleDateString('en-IN')
+    i.created_at ? new Date(i.created_at).toLocaleDateString('en-GB') : ''
   ]);
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+
+  // Proper CSV escaping for commas, quotes and line breaks
+  const escapeCSV = value => {
+    const text = String(value ?? '');
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(escapeCSV).join(','))
+    .join('\r\n');
+
+  // UTF-8 BOM for Excel compatibility
+  const blob = new Blob(['\uFEFF' + csv], {
+    type: 'text/csv;charset=utf-8;'
+  });
+
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'SOP_Feedback_' + new Date().toISOString().slice(0,10) + '.csv';
+
+  a.href = url;
+  a.download = 'SOP_Feedback_' + new Date().toISOString().slice(0, 10) + '.csv';
+
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
 }
+
 
 </script>
 </body>
